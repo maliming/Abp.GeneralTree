@@ -1,0 +1,35 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Module-GeneralTree", "Module-GeneralTree\Module-GeneralTree.csproj", "{BEEBD82E-9E7C-427D-959A-019EC7545C29}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{E4FFA817-D9D5-4C4A-B896-178342CDA11E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Abp", "Abp", "{212F39D2-56CB-4217-A875-74E44F40560B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TreeApplication", "TreeApplication\TreeApplication.csproj", "{38A8B78C-71B0-4AB2-AE0B-B60F9FA5D810}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BEEBD82E-9E7C-427D-959A-019EC7545C29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BEEBD82E-9E7C-427D-959A-019EC7545C29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BEEBD82E-9E7C-427D-959A-019EC7545C29}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BEEBD82E-9E7C-427D-959A-019EC7545C29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38A8B78C-71B0-4AB2-AE0B-B60F9FA5D810}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38A8B78C-71B0-4AB2-AE0B-B60F9FA5D810}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38A8B78C-71B0-4AB2-AE0B-B60F9FA5D810}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38A8B78C-71B0-4AB2-AE0B-B60F9FA5D810}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{38A8B78C-71B0-4AB2-AE0B-B60F9FA5D810} = {212F39D2-56CB-4217-A875-74E44F40560B}
+	EndGlobalSection
+EndGlobal

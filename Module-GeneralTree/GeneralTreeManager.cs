@@ -30,7 +30,8 @@ namespace Abp.Domain.GeneralTree
 
             if (tree.ParentId.HasValue)
             {
-                var parent = await _generalTreeRepository.FirstOrDefaultAsync(x => x.Id == tree.ParentId.Value);
+                var parent =
+                    await _generalTreeRepository.FirstOrDefaultAsync(x => x.Id == tree.ParentId.Value);
                 Check.NotNull(parent, nameof(parent));
 
                 tree.FullName = parent.FullName + "-" + tree.Name;
@@ -129,7 +130,12 @@ namespace Abp.Domain.GeneralTree
         /// <returns></returns>
         private async Task<string> GetNextChildCodeAsync(long? parentId)
         {
-            var lastChild = _generalTreeRepository.GetAll().Where(x => x.ParentId == parentId).OrderBy(c => c.Code).LastOrDefault();
+            var lastChild =
+                _generalTreeRepository.GetAll()
+                    .Where(x => x.ParentId == parentId)
+                    .OrderBy(x => x.Code)
+                    .ToList()
+                    .LastOrDefault();
             if (lastChild != null)
             {
                 //Get the next code

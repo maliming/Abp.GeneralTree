@@ -1,4 +1,4 @@
-# Abp.GeneralTree
+# Abp Module-GeneralTree
 根据 [abp module-zero](https://github.com/aspnetboilerplate/module-zero) 中 [Organizations](http://www.aspnetboilerplate.com/Pages/Documents/Zero/Organization-Units) 功能
 
 实现了对树形Entity通用的管理.

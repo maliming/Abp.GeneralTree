@@ -1,4 +1,7 @@
 # Abp Module-GeneralTree
+
+[![Build status](https://ci.appveyor.com/api/projects/status/9v1wff4rm6jx7yte?svg=true)](https://ci.appveyor.com/project/maliming/module-generaltree)
+
 根据 [abp module-zero](https://github.com/aspnetboilerplate/module-zero) 中 [Organizations](http://www.aspnetboilerplate.com/Pages/Documents/Zero/Organization-Units) 功能
 
 实现了对树形Entity通用的管理.

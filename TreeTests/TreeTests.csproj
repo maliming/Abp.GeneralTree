@@ -152,6 +152,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GeneralTreeCodeGenerate_Tests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GeneralTreeManager_Tests.cs" />
     <Compile Include="TreeTestBase.cs" />

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Abp;
+using Abp.Extensions;
 using Abp.UI;
 
 namespace Abp.Domain.GeneralTree
@@ -17,9 +18,18 @@ namespace Abp.Domain.GeneralTree
     {
         private readonly IRepository<TTree, long> _generalTreeRepository;
 
-        public GeneralTreeManager(IRepository<TTree, long> generalTreeRepository)
+        private readonly IUnitOfWorkManager UnitOfWorkManager;
+
+        public GeneralTreeManager(IRepository<TTree, long> generalTreeRepository, IUnitOfWorkManager unitOfWorkManager)
         {
             _generalTreeRepository = generalTreeRepository;
+            UnitOfWorkManager = unitOfWorkManager;
+        }
+
+        [UnitOfWork]
+        public virtual async Task<TTree> GetAsync(long id)
+        {
+            return await _generalTreeRepository.FirstOrDefaultAsync(x => x.Id == id);
         }
 
         [UnitOfWork]
@@ -46,38 +56,31 @@ namespace Abp.Domain.GeneralTree
             await _generalTreeRepository.InsertAsync(tree);
         }
 
+        [UnitOfWork]
         public virtual async Task UpdateAsync(TTree tree)
         {
             await CheckSameNameAsync(tree);
 
-            var oldTree = await _generalTreeRepository.FirstOrDefaultAsync(x => x.Id == tree.Id);
-            Check.NotNull(oldTree, nameof(oldTree));
+            var children = await GetChildrenAsync(tree.Id, true);
+            var oldFullName = tree.FullName;
 
-            //Check whether Name is modified
-            if (oldTree.Name != tree.Name)
+            if (tree.ParentId.HasValue)
             {
-                var children = await GetChildrenAsync(tree.Id, true);
-                var oldFullName = tree.FullName;
+                var parent = await _generalTreeRepository.FirstOrDefaultAsync(x => x.Id == tree.ParentId.Value);
+                Check.NotNull(parent, nameof(parent));
 
-                if (tree.ParentId.HasValue)
-                {
-                    var parent = await _generalTreeRepository.FirstOrDefaultAsync(x => x.Id == tree.ParentId.Value);
-                    Check.NotNull(parent, nameof(parent));
-
-                    tree.FullName = parent.FullName + "-" + tree.Name;
-                }
-                else
-                {
-                    tree.FullName = tree.Name;
-                }
-
-                foreach (var child in children)
-                {
-                    child.FullName = GeneralTreeCodeGenerate.MergeFullName(tree.FullName, GeneralTreeCodeGenerate.RemoveParentCode(child.FullName, oldFullName));
-                }
+                tree.FullName = parent.FullName + "-" + tree.Name;
+            }
+            else
+            {
+                tree.FullName = tree.Name;
             }
 
-            await _generalTreeRepository.UpdateAsync(tree);
+            foreach (var child in children)
+            {
+                child.FullName = GeneralTreeCodeGenerate.MergeFullName(tree.FullName,
+                    GeneralTreeCodeGenerate.RemoveParentCode(child.FullName, oldFullName));
+            }
         }
 
         [UnitOfWork]
@@ -100,14 +103,17 @@ namespace Abp.Domain.GeneralTree
             tree.Code = await GetNextChildCodeAsync(parentId);
             tree.Level = tree.Code.Split('.').Length;
             tree.ParentId = parentId;
+            tree.FullName = await GetChildFullNameAsync(parentId, tree.Name);
 
             await CheckSameNameAsync(tree);
 
             //Update Children Codes and FullName
             foreach (var child in children)
             {
-                child.Code = GeneralTreeCodeGenerate.MergeCode(tree.Code, GeneralTreeCodeGenerate.RemoveParentCode(child.Code, oldCode));
-                child.FullName = GeneralTreeCodeGenerate.MergeFullName(tree.FullName, GeneralTreeCodeGenerate.RemoveParentCode(child.FullName, oldFullName));
+                child.Code = GeneralTreeCodeGenerate.MergeCode(tree.Code,
+                    GeneralTreeCodeGenerate.RemoveParentCode(child.Code, oldCode));
+                child.FullName = GeneralTreeCodeGenerate.MergeFullName(tree.FullName,
+                    GeneralTreeCodeGenerate.RemoveParentCode(child.FullName, oldFullName));
                 child.Level = child.Code.Split('.').Length;
             }
         }
@@ -178,7 +184,7 @@ namespace Abp.Domain.GeneralTree
             var code = await GetCodeAsync(parentId.Value);
 
             return await _generalTreeRepository.GetAllListAsync(
-                ou => ou.Code.StartsWith(code) && ou.Id != parentId.Value
+                x => x.Code.StartsWith(code) && x.Id != parentId.Value
             );
         }
 
@@ -190,13 +196,25 @@ namespace Abp.Domain.GeneralTree
         private async Task CheckSameNameAsync(TTree tree)
         {
             var siblings = (await GetChildrenAsync(tree.ParentId))
-                .Where(ou => ou.Id != tree.Id)
+                .Where(x => x.Id != tree.Id)
                 .ToList();
 
-            if (siblings.Any(ou => ou.Name == tree.Name))
+            if (siblings.Any(x => x.Name == tree.Name))
             {
                 throw new UserFriendlyException("There is already an tree with name {0}. Two tree with same name can not be created in same level.", tree.Name);
             }
+        }
+
+        /// <summary>
+        /// Get Child FullName Async
+        /// </summary>
+        /// <param name="parentId"></param>
+        /// <param name="childFullName"></param>
+        /// <returns></returns>
+        private async Task<string> GetChildFullNameAsync(long? parentId, string childFullName)
+        {
+            var parent = await _generalTreeRepository.FirstOrDefaultAsync(x => x.Id == parentId);
+            return parent != null ? parent.FullName + "-" + childFullName : childFullName;
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Data.Entity;
 using Abp.EntityFramework;
 
@@ -17,6 +18,13 @@ namespace TreeApplication
         public TreeAppDbContext(string nameOrConnectionString)
             : base(nameOrConnectionString)
         {
+        }
+
+        //This constructor is used in tests
+        public TreeAppDbContext(DbConnection connection)
+        : base(connection, true)
+        {
+
         }
     }
 }

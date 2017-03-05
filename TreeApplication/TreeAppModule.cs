@@ -14,7 +14,7 @@ using Castle.MicroKernel.Registration;
 namespace TreeApplication
 {
     [DependsOn(typeof(AbpEntityFrameworkModule), typeof(GeneralTreeModule))]
-    public class TreeModule : AbpModule
+    public class TreeAppModule : AbpModule
     {
         public override void Initialize()
         {

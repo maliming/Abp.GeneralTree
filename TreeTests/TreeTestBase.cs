@@ -13,6 +13,7 @@ using Abp.Domain.Uow;
 using Abp.Runtime.Session;
 using Castle.MicroKernel.Registration;
 using Effort;
+using TreeApplication;
 
 namespace TreeTests
 {
@@ -20,8 +21,9 @@ namespace TreeTests
     {
         protected TreeTestBase()
         {
+            LocalIocManager.Resolve<TreeAppDbContext>().Database.CreateIfNotExists();
             //Seed initial data
-            UsingDbContext(context => new TreeTestInitialDataBuilder().Build(context));
+            UsingDbContext(context => new TreeTestInitialDataBuilder(context).Build(context));
         }
 
         protected override void PreInitialize()
@@ -36,9 +38,9 @@ namespace TreeTests
             base.PreInitialize();
         }
 
-        public void UsingDbContext(Action<TreeTestDbContext> action)
+        public void UsingDbContext(Action<TreeAppDbContext> action)
         {
-            using (var context = LocalIocManager.Resolve<TreeTestDbContext>())
+            using (var context = LocalIocManager.Resolve<TreeAppDbContext>())
             {
                 context.DisableAllFilters();
                 action(context);
@@ -46,11 +48,11 @@ namespace TreeTests
             }
         }
 
-        public T UsingDbContext<T>(Func<TreeTestDbContext, T> func)
+        public T UsingDbContext<T>(Func<TreeAppDbContext, T> func)
         {
             T result;
 
-            using (var context = LocalIocManager.Resolve<TreeTestDbContext>())
+            using (var context = LocalIocManager.Resolve<TreeAppDbContext>())
             {
                 context.DisableAllFilters();
                 result = func(context);

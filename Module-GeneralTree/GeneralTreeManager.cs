@@ -18,18 +18,9 @@ namespace Abp.Domain.GeneralTree
     {
         private readonly IRepository<TTree, long> _generalTreeRepository;
 
-        private readonly IUnitOfWorkManager UnitOfWorkManager;
-
-        public GeneralTreeManager(IRepository<TTree, long> generalTreeRepository, IUnitOfWorkManager unitOfWorkManager)
+        public GeneralTreeManager(IRepository<TTree, long> generalTreeRepository)
         {
             _generalTreeRepository = generalTreeRepository;
-            UnitOfWorkManager = unitOfWorkManager;
-        }
-
-        [UnitOfWork]
-        public virtual async Task<TTree> GetAsync(long id)
-        {
-            return await _generalTreeRepository.FirstOrDefaultAsync(x => x.Id == id);
         }
 
         [UnitOfWork]

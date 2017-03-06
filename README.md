@@ -1,6 +1,7 @@
 # Abp Module-GeneralTree
 
 [![Build status](https://ci.appveyor.com/api/projects/status/9v1wff4rm6jx7yte?svg=true)](https://ci.appveyor.com/project/maliming/module-generaltree)
+[![NuGet](https://img.shields.io/nuget/vpre/abp.GeneralTree.svg)](https://www.nuget.org/packages/Abp.GeneralTree/1.2.0)
 
 根据 [abp module-zero](https://github.com/aspnetboilerplate/module-zero) 中 [Organizations](http://www.aspnetboilerplate.com/Pages/Documents/Zero/Organization-Units) 功能
 

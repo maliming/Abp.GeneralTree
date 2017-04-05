@@ -18,33 +18,9 @@ namespace TreeTests
     {
         private readonly GeneralTreeManager<Region> _generalRegionTreeManager;
 
-        private readonly IRepository<Region, long> _regionRepository;
-
-        private readonly IUnitOfWorkManager _unitOfWorkManager;
-
         public GeneralTreeManager_Tests()
         {
             _generalRegionTreeManager = LocalIocManager.Resolve<GeneralTreeManager<Region>>();
-            _regionRepository = LocalIocManager.Resolve<IRepository<Region, long>>();
-            _unitOfWorkManager = LocalIocManager.Resolve<IUnitOfWorkManager>();
-        }
-
-        [Fact]
-        public async Task Create_Root_Test()
-        {
-            //Act
-            await _generalRegionTreeManager.CreateAsync(new Region()
-            {
-                Name = "beijing"
-            });
-
-            //Assert
-            var beijing = GetRegion("beijing");
-            beijing.ShouldNotBeNull();
-            beijing.Name.ShouldBe("beijing");
-            beijing.FullName.ShouldBe("beijing");
-            beijing.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1));
-            beijing.Level.ShouldBe(1);
         }
 
         [Fact]
@@ -112,93 +88,110 @@ namespace TreeTests
         [Fact]
         public async Task Update_Test()
         {
-            //Act
-            using (var uow = _unitOfWorkManager.Begin())
+            //Arrange
+            await UsingDbContext(async context =>
             {
-                var beijing = await CreateRegion("beijing");
-                await _unitOfWorkManager.Current.SaveChangesAsync();
+                context.Region.Add(new Region
+                {
+                    Name = "beijing",
+                    FullName = "beijing",
+                    Code = "00001",
+                    Level = 1
+                });
+                await context.SaveChangesAsync();
 
-                var newBeijing = GetRegion("beijing");
-                newBeijing.Name = "newbeijing";
-                await _generalRegionTreeManager.UpdateAsync(newBeijing);
+                //Act
+                var beijing = context.Region.First(x => x.Name == "beijing");
+                beijing.Name = "newbeijing";
+                await _generalRegionTreeManager.UpdateAsync(beijing);
+                await context.SaveChangesAsync();
 
-                uow.Complete();
-            }
-
-            //Assert
-            var bj = GetRegionOrNull("beijing");
-            bj.ShouldBeNull();
-
-            bj = GetRegion("newbeijing");
-            bj.ShouldNotBeNull();
-            bj.Name.ShouldBe("newbeijing");
-            bj.FullName.ShouldBe("newbeijing");
+                //Assert
+                var newbeijing = context.Region.First(x => x.Name == "newbeijing");
+                newbeijing.ShouldNotBeNull();
+                newbeijing.Name.ShouldBe("newbeijing");
+                newbeijing.FullName.ShouldBe("newbeijing");
+            });
         }
 
         [Fact]
         public async Task Update_Name_Child_FullName_ShouldBe_Update_Test()
         {
-            using (var uow = _unitOfWorkManager.Begin())
+            await UsingDbContextAsync(async context =>
             {
-                //Act
-                var beijing = new Region()
+                //Arrange
+                context.Region.Add(new Region
                 {
-                    Name = "beijing"
-                };
-                await _generalRegionTreeManager.CreateAsync(beijing);
-                await _unitOfWorkManager.Current.SaveChangesAsync();
+                    Name = "beijing",
+                    FullName = "beijing",
+                    Code = "00001",
+                    Level = 1
+                });
+                await context.SaveChangesAsync();
 
-                var xicheng = new Region()
+                context.Region.Add(new Region
                 {
                     Name = "xicheng",
-                    ParentId = beijing.Id
-                };
-                await _generalRegionTreeManager.CreateAsync(xicheng);
-                await _unitOfWorkManager.Current.SaveChangesAsync();
+                    FullName = "beijing-xicheng",
+                    Code = "00001.00001",
+                    Level = 2,
+                    ParentId = 1
+                });
+                await context.SaveChangesAsync();
 
-                var newBeijing = GetRegion("beijing");
-                newBeijing.Name = "newbeijing";
-                await _generalRegionTreeManager.UpdateAsync(newBeijing);
+                //Act
+                var beijing = context.Region.First(x => x.Name == "beijing");
+                beijing.Name = "newbeijing";
+                await _generalRegionTreeManager.UpdateAsync(beijing);
+                await context.SaveChangesAsync();
+            });
 
-                uow.Complete();
-            }
-
-            //Assert
-            var xc = GetRegion("xicheng");
-            xc.FullName.ShouldBe("newbeijing-xicheng");
+            UsingDbContext(context =>
+            {
+                //Assert
+                var xicheng = context.Region.First(x => x.Name == "xicheng");
+                xicheng.FullName.ShouldBe("newbeijing-xicheng");
+            });
         }
 
         [Fact]
         public async Task Update_Name_FullName_ShouldBe_Update_With_Parent_FullName_Test()
         {
-            using (var uow = _unitOfWorkManager.Begin())
+            await UsingDbContextAsync(async context =>
             {
-                //Act
-                var beijing = new Region()
+                //Arrange
+                context.Region.Add(new Region
                 {
-                    Name = "beijing"
-                };
-                await _generalRegionTreeManager.CreateAsync(beijing);
-                await _unitOfWorkManager.Current.SaveChangesAsync();
+                    Name = "beijing",
+                    FullName = "beijing",
+                    Code = "00001",
+                    Level = 1
+                });
+                await context.SaveChangesAsync();
 
-                var xicheng = new Region()
+                context.Region.Add(new Region
                 {
                     Name = "xicheng",
-                    ParentId = beijing.Id
-                };
-                await _generalRegionTreeManager.CreateAsync(xicheng);
-                await _unitOfWorkManager.Current.SaveChangesAsync();
+                    FullName = "beijing-xicheng",
+                    Code = "00001.00001",
+                    Level = 2,
+                    ParentId = 1
+                });
+                await context.SaveChangesAsync();
 
-                var newXicheng = GetRegion("xicheng");
-                newXicheng.Name = "newxicheng";
-                await _generalRegionTreeManager.UpdateAsync(newXicheng);
+                //Act
+                var xicheng = context.Region.First(x => x.Name == "xicheng");
+                xicheng.Name = "newxicheng";
+                await _generalRegionTreeManager.UpdateAsync(xicheng);
+                await context.SaveChangesAsync();
+            });
 
-                uow.Complete();
-            }
-
-            //Assert
-            var xc = GetRegion("newxicheng");
-            xc.FullName.ShouldBe("beijing-newxicheng");
+            UsingDbContext(context =>
+            {
+                //Assert
+                var xicheng = context.Region.First(x => x.Name == "newxicheng");
+                xicheng.FullName.ShouldBe("beijing-newxicheng");
+            });
         }
 
         [Fact]
@@ -230,14 +223,12 @@ namespace TreeTests
 
         private Region GetRegion(string name)
         {
-            var region = _regionRepository.FirstOrDefault(x => x.Name == name);
-            region.ShouldNotBeNull();
-            return region;
-        }
-
-        private Region GetRegionOrNull(string name)
-        {
-            return _regionRepository.FirstOrDefault(x => x.Name == name);
+            return UsingDbContext(context =>
+            {
+                var region = context.Region.FirstOrDefault(x => x.Name == name);
+                region.ShouldNotBeNull();
+                return region;
+            });
         }
 
         private async Task<Region> CreateRegion(string name, long? parentId = null)
@@ -250,22 +241,5 @@ namespace TreeTests
             await _generalRegionTreeManager.CreateAsync(region);
             return region;
         }
-
-        private Region CreateRegion(string name, string fullName, string code, long? parentId = null)
-        {
-            return UsingDbContext(context =>
-            {
-                var region = context.Region.Add(new Region()
-                {
-                    Name = name,
-                    FullName = fullName,
-                    Code = code,
-                    ParentId = parentId
-                });
-                context.SaveChanges();
-                return region; 
-            });
-        }
-
     }
 }

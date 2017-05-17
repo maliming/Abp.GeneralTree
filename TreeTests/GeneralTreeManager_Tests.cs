@@ -75,14 +75,17 @@ namespace TreeTests
             });
 
             //Assert
-            await Assert.ThrowsAsync<UserFriendlyException>(
-                () => _generalRegionTreeManager.CreateAsync(
-                    new Region()
-                    {
-                        Name = "beijing"
-                    }
-                )
-            );
+            var exception = await Record.ExceptionAsync(async () => await _generalRegionTreeManager.CreateAsync(
+                new Region
+                {
+                    Name = "beijing"
+                }
+            ));
+
+            exception.ShouldNotBeNull();
+            exception.ShouldBeOfType<UserFriendlyException>();
+            exception.Message.ShouldBe(
+                "There is already an tree with name beijing. Two tree with same name can not be created in same level.");
         }
 
         [Fact]

@@ -192,7 +192,7 @@ namespace Abp.Domain.GeneralTree
 
             if (siblings.Any(x => x.Name == tree.Name))
             {
-                throw new UserFriendlyException("There is already an tree with name {0}. Two tree with same name can not be created in same level.", tree.Name);
+                throw new UserFriendlyException($"There is already an tree with name { tree.Name }. Two tree with same name can not be created in same level.");
             }
         }
 

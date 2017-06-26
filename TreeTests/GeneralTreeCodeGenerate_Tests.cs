@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Abp.Domain.GeneralTree;
+using Abp.GeneralTree;
 using Shouldly;
 using Xunit;
 

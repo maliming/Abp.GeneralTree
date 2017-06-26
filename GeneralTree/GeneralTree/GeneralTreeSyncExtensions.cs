@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Abp.Domain.Entities;
 using Abp.Threading;
 
-namespace Abp.Domain.GeneralTree
+namespace Abp.GeneralTree
 {
     public static class GeneralTreeSyncExtensions
     {

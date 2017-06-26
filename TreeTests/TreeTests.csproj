@@ -160,9 +160,9 @@
     <Compile Include="TreeTestModule.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Module-GeneralTree\Module-GeneralTree.csproj">
+    <ProjectReference Include="..\GeneralTree\GeneralTree.csproj">
       <Project>{BEEBD82E-9E7C-427D-959A-019EC7545C29}</Project>
-      <Name>Module-GeneralTree</Name>
+      <Name>GeneralTree</Name>
     </ProjectReference>
     <ProjectReference Include="..\TreeApplication\TreeApplication.csproj">
       <Project>{38a8b78c-71b0-4ab2-ae0b-b60f9fa5d810}</Project>

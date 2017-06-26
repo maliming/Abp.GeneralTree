@@ -7,13 +7,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Abp;
-using Abp.Extensions;
 using Abp.UI;
 
-namespace Abp.Domain.GeneralTree
+namespace Abp.GeneralTree
 {
-    public class GeneralTreeManager<TTree> : IDomainService
+    public class GeneralTreeManager<TTree> : IDomainService, IGeneralTreeManager<TTree>
         where TTree : class, IGeneralTree<TTree>, IEntity<long>
     {
         private readonly IRepository<TTree, long> _generalTreeRepository;

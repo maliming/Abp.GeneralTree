@@ -106,11 +106,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GeneralTreeModule.cs" />
-    <Compile Include="GeneralTreeCodeGenerate.cs" />
-    <Compile Include="GeneralTreeManager.cs" />
-    <Compile Include="GeneralTreeSyncExtensions.cs" />
-    <Compile Include="IGeneralTree.cs" />
+    <Compile Include="GeneralTree\GeneralTreeModule.cs" />
+    <Compile Include="GeneralTree\GeneralTreeCodeGenerate.cs" />
+    <Compile Include="GeneralTree\GeneralTreeManager.cs" />
+    <Compile Include="GeneralTree\GeneralTreeSyncExtensions.cs" />
+    <Compile Include="GeneralTree\IGeneralTree.cs" />
+    <Compile Include="GeneralTree\IGeneralTreeManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

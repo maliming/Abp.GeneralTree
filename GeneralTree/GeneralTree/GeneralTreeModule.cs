@@ -15,6 +15,7 @@ namespace Abp.GeneralTree
         public override void Initialize()
         {
             IocManager.RegisterAssemblyByConvention(Assembly.GetExecutingAssembly());
+            IocManager.Register(typeof(GeneralTreeManager<>));
         }
     }
 }

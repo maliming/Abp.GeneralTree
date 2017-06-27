@@ -34,6 +34,7 @@ public interface IGeneralTree<TTree>
 适合管理各种树结构如:地区,组织,类别,行业等拥有父子层次的各种Entity.
 
 数据:
+
 Id|Name|FullName|Code|Level|ParentId
 :--:|:--:|:--:|:--:|:--:|:--:
 1|北京|北京|00001|1|NULL

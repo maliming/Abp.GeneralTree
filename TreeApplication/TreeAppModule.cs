@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using Abp.Domain.GeneralTree;
+using Abp.GeneralTree;
 using Abp.EntityFramework;
 using Abp.GeneralTree;
 using Abp.Modules;

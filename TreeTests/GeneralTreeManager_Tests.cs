@@ -4,9 +4,9 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using Abp.Domain.GeneralTree;
 using Abp.Domain.Repositories;
 using Abp.Domain.Uow;
+using Abp.GeneralTree;
 using Abp.UI;
 using Shouldly;
 using TreeApplication;
@@ -16,11 +16,11 @@ namespace TreeTests
 {
     public class GeneralTreeManager_Tests : TreeTestBase
     {
-        private readonly GeneralTreeManager<Region> _generalRegionTreeManager;
+        private readonly IGeneralTreeManager<Region> _generalRegionTreeManager;
 
         public GeneralTreeManager_Tests()
         {
-            _generalRegionTreeManager = LocalIocManager.Resolve<GeneralTreeManager<Region>>();
+            _generalRegionTreeManager = LocalIocManager.Resolve<IGeneralTreeManager<Region>>();
         }
 
         [Fact]

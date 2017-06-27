@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Abp.Domain.Entities;
 
-namespace Abp.Domain.GeneralTree
+namespace Abp.GeneralTree
 {
     public interface IGeneralTree<TTree>
     {

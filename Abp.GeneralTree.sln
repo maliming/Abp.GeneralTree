@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.13
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Module-GeneralTree", "Module-GeneralTree\Module-GeneralTree.csproj", "{BEEBD82E-9E7C-427D-959A-019EC7545C29}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeneralTree", "GeneralTree\GeneralTree.csproj", "{BEEBD82E-9E7C-427D-959A-019EC7545C29}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{E4FFA817-D9D5-4C4A-B896-178342CDA11E}"
 EndProject

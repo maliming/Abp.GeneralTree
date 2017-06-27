@@ -33,8 +33,7 @@ public interface IGeneralTree<TTree>
 
 适合管理各种树结构如:地区,组织,类别,行业等拥有父子层次的各种Entity.
 
-模拟数据:
-
+数据:
 Id|Name|FullName|Code|Level|ParentId
 :--:|:--:|:--:|:--:|:--:|:--:
 1|北京|北京|00001|1|NULL
@@ -78,10 +77,34 @@ Id|Name|FullName|Code|Level|ParentId
 39|桥西区|河北-石家庄-桥西区|00003.00001.00003|3|36
 40|新华区|河北-石家庄-新华区|00003.00001.00004|3|36
 
+## 使用 ##
+```csharp
+public interface IGeneralTreeManager<in TTree> 
+	where TTree : class, IGeneralTree<TTree>, IEntity<long>
+{
+	Task CreateAsync(TTree tree);
 
-GeneralTreeManager进行Create(创建),Update(更新),Delete(删除),Move(移动 如改变父节点)操作的时候自动维护Code,Level,FullName.
+	Task UpdateAsync(TTree tree);
+
+	Task MoveAsync(long id, long? parentId);
+
+	Task DeleteAsync(long id);
+}
+```
+创建,更新,删除,移动(如改变父节点) 自动维护Code,Level,FullName.
 
 Code特性对于树状结构处理层级关系非常方便.
+```csharp
+//查询北京所有子数据
+var beijing = await _regionRepository.FirstOrDefaultAsync(x => x.Name == "北京");
+var beijingChildren = _regionRepository.GetAll()
+	.Where(x => x.Id != beijing.Id && x.Code.StartsWith(beijing.Code));
 
-> 代码大部分来自abp module-zero
-:+1:
+//根据子查询顶级
+var changanqu = await _regionRepository.FirstOrDefaultAsync(x => x.Name == "长安区");
+var hebei =
+	await _regionRepository.FirstOrDefaultAsync(x => x.Level == 1 && changanqu.Code.Contains(x.Code));
+```
+详细Code特性介绍请访问:[ou-code](https://aspnetboilerplate.com/Pages/Documents/Zero/Organization-Units#ou-code)
+
+> 大部分代码来自[abp module-zero](https://github.com/aspnetboilerplate/module-zero)

@@ -16,11 +16,11 @@ namespace TreeTests
 {
     public class GeneralTreeManager_Tests : TreeTestBase
     {
-        private readonly GeneralTreeManager<Region> _generalRegionTreeManager;
+        private readonly IGeneralTreeManager<Region> _generalRegionTreeManager;
 
         public GeneralTreeManager_Tests()
         {
-            _generalRegionTreeManager = LocalIocManager.Resolve<GeneralTreeManager<Region>>();
+            _generalRegionTreeManager = LocalIocManager.Resolve<IGeneralTreeManager<Region>>();
         }
 
         [Fact]

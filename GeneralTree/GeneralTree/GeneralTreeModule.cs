@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Abp.Dependency;
 using Abp.Modules;
 using Castle.MicroKernel.Registration;
 
@@ -15,7 +16,8 @@ namespace Abp.GeneralTree
         public override void Initialize()
         {
             IocManager.RegisterAssemblyByConvention(Assembly.GetExecutingAssembly());
-            IocManager.Register(typeof(GeneralTreeManager<>));
+            IocManager.Register(typeof(IGeneralTreeManager<>), typeof(GeneralTreeManager<>),
+                DependencyLifeStyle.Transient);
         }
     }
 }

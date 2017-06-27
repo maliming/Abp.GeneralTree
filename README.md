@@ -107,5 +107,3 @@ var hebei =
 	await _regionRepository.FirstOrDefaultAsync(x => x.Level == 1 && changanqu.Code.Contains(x.Code));
 ```
 详细Code特性介绍请访问:[ou-code](https://aspnetboilerplate.com/Pages/Documents/Zero/Organization-Units#ou-code)
-
-> 大部分代码来自[abp module-zero](https://github.com/aspnetboilerplate/module-zero)

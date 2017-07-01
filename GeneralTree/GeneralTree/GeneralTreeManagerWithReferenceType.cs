@@ -173,7 +173,7 @@ namespace Abp.GeneralTree.GeneralTree
 
             var code = await GetCodeAsync(parentId);
 
-            return _generalTreeRepository.GetAll().Where(x => x.Code.StartsWith(code) && x.ParentId != parentId)
+            return _generalTreeRepository.GetAll().Where(x => x.Code.StartsWith(code) && x.Id != parentId)
                 .ToList();
         }
 

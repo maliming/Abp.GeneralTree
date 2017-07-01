@@ -10,6 +10,8 @@ namespace TreeApplication
     {
         public virtual IDbSet<Region> Region { get; set; }
 
+        public virtual IDbSet<Region2> Region2 { get; set; }
+
         public TreeAppDbContext()
             : base("Default")
         {

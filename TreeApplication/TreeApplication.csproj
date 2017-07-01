@@ -143,11 +143,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Migrations\201703041231007_init.cs" />
-    <Compile Include="Migrations\201703041231007_init.Designer.cs">
-      <DependentUpon>201703041231007_init.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Region2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Region.cs" />
     <Compile Include="TreeAppDbContext.cs" />
@@ -164,11 +160,6 @@
       <Project>{beebd82e-9e7c-427d-959a-019ec7545c29}</Project>
       <Name>GeneralTree</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Migrations\201703041231007_init.resx">
-      <DependentUpon>201703041231007_init.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5.2">

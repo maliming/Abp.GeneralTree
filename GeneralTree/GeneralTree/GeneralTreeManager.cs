@@ -24,8 +24,57 @@ namespace Abp.GeneralTree
             _generalTreeRepository = generalTreeRepository;
         }
 
+        #region EqualExpression
 
-        private static Expression<Func<TTree, bool>> Equal(TPrimaryKey id, string property = "Id")
+        private static Expression<Func<TTree, bool>> EqualId(TPrimaryKey id)
+        {
+            var lambdaParam = Expression.Parameter(typeof(TTree));
+
+            var lambdaBody = Expression.Equal(
+                Expression.PropertyOrField(lambdaParam, "Id"),
+                Expression.Constant(id, typeof(TPrimaryKey))
+            );
+
+            return Expression.Lambda<Func<TTree, bool>>(lambdaBody, lambdaParam);
+        }
+
+        private static Expression<Func<TTree, bool>> EqualId(TPrimaryKey? id)
+        {
+            var lambdaParam = Expression.Parameter(typeof(TTree));
+
+            var lambdaBody = Expression.Equal(
+                Expression.PropertyOrField(lambdaParam, "Id"),
+                Expression.Constant(id, typeof(TPrimaryKey))
+            );
+
+            return Expression.Lambda<Func<TTree, bool>>(lambdaBody, lambdaParam);
+        }
+
+        private static Expression<Func<TTree, bool>> NotEqualId(TPrimaryKey id)
+        {
+            var lambdaParam = Expression.Parameter(typeof(TTree));
+
+            var lambdaBody = Expression.NotEqual(
+                Expression.PropertyOrField(lambdaParam, "Id"),
+                Expression.Constant(id, typeof(TPrimaryKey))
+            );
+
+            return Expression.Lambda<Func<TTree, bool>>(lambdaBody, lambdaParam);
+        }
+
+        private static Expression<Func<TTree, bool>> NotEqualId(TPrimaryKey? id)
+        {
+            var lambdaParam = Expression.Parameter(typeof(TTree));
+
+            var lambdaBody = Expression.NotEqual(
+                Expression.PropertyOrField(lambdaParam, "Id"),
+                Expression.Constant(id, typeof(TPrimaryKey))
+            );
+
+            return Expression.Lambda<Func<TTree, bool>>(lambdaBody, lambdaParam);
+        }
+
+        private static Expression<Func<TTree, bool>> Equal(TPrimaryKey id, string property)
         {
             var lambdaParam = Expression.Parameter(typeof(TTree));
 
@@ -37,7 +86,19 @@ namespace Abp.GeneralTree
             return Expression.Lambda<Func<TTree, bool>>(lambdaBody, lambdaParam);
         }
 
-        private static Expression<Func<TTree, bool>> NotEqual(TPrimaryKey id, string property = "Id")
+        private static Expression<Func<TTree, bool>> Equal(TPrimaryKey? id, string property)
+        {
+            var lambdaParam = Expression.Parameter(typeof(TTree));
+
+            var lambdaBody = Expression.Equal(
+                Expression.PropertyOrField(lambdaParam, property),
+                Expression.Constant(id, typeof(TPrimaryKey?))
+            );
+
+            return Expression.Lambda<Func<TTree, bool>>(lambdaBody, lambdaParam);
+        }
+
+        private static Expression<Func<TTree, bool>> NotEqual(TPrimaryKey id, string property)
         {
             var lambdaParam = Expression.Parameter(typeof(TTree));
 
@@ -49,6 +110,19 @@ namespace Abp.GeneralTree
             return Expression.Lambda<Func<TTree, bool>>(lambdaBody, lambdaParam);
         }
 
+        private static Expression<Func<TTree, bool>> NotEqual(TPrimaryKey? id, string property)
+        {
+            var lambdaParam = Expression.Parameter(typeof(TTree));
+
+            var lambdaBody = Expression.NotEqual(
+                Expression.PropertyOrField(lambdaParam, property),
+                Expression.Constant(id, typeof(TPrimaryKey?))
+            );
+
+            return Expression.Lambda<Func<TTree, bool>>(lambdaBody, lambdaParam);
+        }
+
+        #endregion
 
         [UnitOfWork]
         public virtual async Task CreateAsync(TTree tree)
@@ -59,7 +133,7 @@ namespace Abp.GeneralTree
             if (tree.ParentId.HasValue)
             {
                 var parent =
-                    await _generalTreeRepository.FirstOrDefaultAsync(x => x.Id == tree.ParentId.Value);
+                    await _generalTreeRepository.FirstOrDefaultAsync(EqualId(tree.ParentId.Value));
                 Check.NotNull(parent, nameof(parent));
 
                 tree.FullName = parent.FullName + "-" + tree.Name;
@@ -84,7 +158,7 @@ namespace Abp.GeneralTree
 
             if (tree.ParentId.HasValue)
             {
-                var parent = await _generalTreeRepository.FirstOrDefaultAsync(x => x.Id == tree.ParentId.Value);
+                var parent = await _generalTreeRepository.FirstOrDefaultAsync(EqualId(tree.ParentId.Value));
                 Check.NotNull(parent, nameof(parent));
 
                 tree.FullName = parent.FullName + "-" + tree.Name;
@@ -105,7 +179,7 @@ namespace Abp.GeneralTree
         public virtual async Task MoveAsync(TPrimaryKey id, TPrimaryKey? parentId)
         {
             var tree = await _generalTreeRepository.GetAsync(id);
-            if (tree.ParentId == parentId)
+            if (tree.ParentId.Equals(parentId))
             {
                 return;
             }
@@ -156,7 +230,7 @@ namespace Abp.GeneralTree
         {
             var lastChild =
                 _generalTreeRepository.GetAll()
-                    .Where(x => x.ParentId == parentId)
+                    .Where(Equal(parentId, "ParentId"))
                     .OrderBy(x => x.Code)
                     .ToList()
                     .LastOrDefault();
@@ -191,7 +265,7 @@ namespace Abp.GeneralTree
         {
             if (!recursive)
             {
-                return await _generalTreeRepository.GetAllListAsync(ou => ou.ParentId == parentId);
+                return await _generalTreeRepository.GetAllListAsync(Equal(parentId, "ParentId"));
             }
 
             if (!parentId.HasValue)
@@ -201,9 +275,8 @@ namespace Abp.GeneralTree
 
             var code = await GetCodeAsync(parentId.Value);
 
-            return await _generalTreeRepository.GetAllListAsync(
-                x => x.Code.StartsWith(code) && x.Id != parentId.Value
-            );
+            return _generalTreeRepository.GetAll().Where(x => x.Code.StartsWith(code))
+                .Where(NotEqualId(parentId.Value)).ToList();
         }
 
         /// <summary>
@@ -214,12 +287,12 @@ namespace Abp.GeneralTree
         private async Task CheckSameNameAsync(TTree tree)
         {
             var siblings = (await GetChildrenAsync(tree.ParentId))
-                .Where(x => x.Id != tree.Id)
-                .ToList();
+                .Where(x => !x.Id.Equals(tree.Id));
 
             if (siblings.Any(x => x.Name == tree.Name))
             {
-                throw new UserFriendlyException($"There is already an tree with name { tree.Name }. Two tree with same name can not be created in same level.");
+                throw new UserFriendlyException(
+                    $"There is already an tree with name {tree.Name}. Two tree with same name can not be created in same level.");
             }
         }
 
@@ -231,7 +304,7 @@ namespace Abp.GeneralTree
         /// <returns></returns>
         private async Task<string> GetChildFullNameAsync(TPrimaryKey? parentId, string childFullName)
         {
-            var parent = await _generalTreeRepository.FirstOrDefaultAsync(x => x.Id == parentId);
+            var parent = await _generalTreeRepository.FirstOrDefaultAsync(EqualId(parentId));
             return parent != null ? parent.FullName + "-" + childFullName : childFullName;
         }
     }

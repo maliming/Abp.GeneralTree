@@ -50,8 +50,9 @@ public interface IGeneralTree<TTree, TPrimaryKey> : IEntity<TPrimaryKey>
 ### 主要特性
 
 - 基于Abp
+- 支持自定义主键(值类型,引用类型)
 - 自动处理Code,Level,FullName的赋值
-- 根据Code特性快速查询
+- 根据Code特性快速查询,高效管理
 
 适合管理各种树结构如:地区,组织,类别,行业等拥有父子层次的各种Entity.
 
@@ -118,7 +119,7 @@ Id|Name|FullName|Code|Level|ParentId
 }
 ```
 引用类型
-```
+```csharp
 public interface IGeneralTreeManagerWithReferenceType<in TTree, in TPrimaryKey>
       where TPrimaryKey : class 
       where TTree : class, IGeneralTreeWithReferenceType<TTree, TPrimaryKey>, IEntity<TPrimaryKey>
@@ -135,6 +136,7 @@ public interface IGeneralTreeManagerWithReferenceType<in TTree, in TPrimaryKey>
 创建,更新,删除,移动(如改变父节点) 自动维护Code,Level,FullName.
 
 Code特性对于树状结构处理层级关系非常方便.
+
 ```csharp
 //查询北京所有子数据
 var beijing = await _regionRepository.FirstOrDefaultAsync(x => x.Name == "北京");

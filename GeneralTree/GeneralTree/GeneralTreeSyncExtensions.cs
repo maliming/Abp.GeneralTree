@@ -10,6 +10,7 @@ namespace Abp.GeneralTree
 {
     public static class GeneralTreeSyncExtensions
     {
+        /*
         public static void Create<TTree>(this GeneralTreeManager<TTree> manager, TTree tree) 
             where TTree : class, IEntity<long>, IGeneralTree<TTree>
         {
@@ -33,5 +34,6 @@ namespace Abp.GeneralTree
         {
             AsyncHelper.RunSync(() => manager.MoveAsync(id, parentId));
         }
+        */
     }
 }

@@ -8,7 +8,7 @@ using Abp.GeneralTree;
 
 namespace TreeApplication
 {
-    public class Region : Entity<long>, IGeneralTree<Region>
+    public class Region : Entity<long>, IGeneralTree<Region, long>
     {
         public virtual string Name { get; set; }
 

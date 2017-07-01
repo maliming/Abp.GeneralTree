@@ -7,9 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Abp.GeneralTree;
 using Abp.EntityFramework;
-using Abp.GeneralTree;
 using Abp.Modules;
-using Castle.MicroKernel.Registration;
 
 namespace TreeApplication
 {

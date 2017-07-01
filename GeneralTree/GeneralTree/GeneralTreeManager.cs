@@ -5,6 +5,7 @@ using Abp.Domain.Uow;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Abp.Dependency;
@@ -22,6 +23,32 @@ namespace Abp.GeneralTree
         {
             _generalTreeRepository = generalTreeRepository;
         }
+
+
+        private static Expression<Func<TTree, bool>> Equal(TPrimaryKey id, string property = "Id")
+        {
+            var lambdaParam = Expression.Parameter(typeof(TTree));
+
+            var lambdaBody = Expression.Equal(
+                Expression.PropertyOrField(lambdaParam, property),
+                Expression.Constant(id, typeof(TPrimaryKey))
+            );
+
+            return Expression.Lambda<Func<TTree, bool>>(lambdaBody, lambdaParam);
+        }
+
+        private static Expression<Func<TTree, bool>> NotEqual(TPrimaryKey id, string property = "Id")
+        {
+            var lambdaParam = Expression.Parameter(typeof(TTree));
+
+            var lambdaBody = Expression.NotEqual(
+                Expression.PropertyOrField(lambdaParam, property),
+                Expression.Constant(id, typeof(TPrimaryKey))
+            );
+
+            return Expression.Lambda<Func<TTree, bool>>(lambdaBody, lambdaParam);
+        }
+
 
         [UnitOfWork]
         public virtual async Task CreateAsync(TTree tree)
@@ -75,7 +102,7 @@ namespace Abp.GeneralTree
         }
 
         [UnitOfWork]
-        public virtual async Task MoveAsync(long id, long? parentId)
+        public virtual async Task MoveAsync(TPrimaryKey id, TPrimaryKey? parentId)
         {
             var tree = await _generalTreeRepository.GetAsync(id);
             if (tree.ParentId == parentId)
@@ -110,7 +137,7 @@ namespace Abp.GeneralTree
         }
 
         [UnitOfWork]
-        public virtual async Task DeleteAsync(long id)
+        public virtual async Task DeleteAsync(TPrimaryKey id)
         {
             var children = await GetChildrenAsync(id, true);
             foreach (var child in children)
@@ -125,7 +152,7 @@ namespace Abp.GeneralTree
         /// </summary>
         /// <param name="parentId"></param>
         /// <returns></returns>
-        private async Task<string> GetNextChildCodeAsync(long? parentId)
+        private async Task<string> GetNextChildCodeAsync(TPrimaryKey? parentId)
         {
             var lastChild =
                 _generalTreeRepository.GetAll()
@@ -149,7 +176,7 @@ namespace Abp.GeneralTree
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        private async Task<string> GetCodeAsync(long id)
+        private async Task<string> GetCodeAsync(TPrimaryKey id)
         {
             return (await _generalTreeRepository.GetAsync(id)).Code;
         }
@@ -160,7 +187,7 @@ namespace Abp.GeneralTree
         /// <param name="parentId"></param>
         /// <param name="recursive"></param>
         /// <returns></returns>
-        private async Task<List<TTree>> GetChildrenAsync(long? parentId, bool recursive = false)
+        private async Task<List<TTree>> GetChildrenAsync(TPrimaryKey? parentId, bool recursive = false)
         {
             if (!recursive)
             {
@@ -202,7 +229,7 @@ namespace Abp.GeneralTree
         /// <param name="parentId"></param>
         /// <param name="childFullName"></param>
         /// <returns></returns>
-        private async Task<string> GetChildFullNameAsync(long? parentId, string childFullName)
+        private async Task<string> GetChildFullNameAsync(TPrimaryKey? parentId, string childFullName)
         {
             var parent = await _generalTreeRepository.FirstOrDefaultAsync(x => x.Id == parentId);
             return parent != null ? parent.FullName + "-" + childFullName : childFullName;

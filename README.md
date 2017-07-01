@@ -1,4 +1,4 @@
-# Abp Module-GeneralTree
+# Abp GeneralTree
 
 [![Build status](https://ci.appveyor.com/api/projects/status/ftg4ttr825gnmabl?svg=true)](https://ci.appveyor.com/project/maliming/Abp-Generaltree)
 [![NuGet](https://img.shields.io/nuget/vpre/abp.GeneralTree.svg)](https://www.nuget.org/packages/Abp.GeneralTree)
@@ -7,8 +7,10 @@
 
 实现了对树形Entity通用的管理.
 
+值类型
 ```csharp
-public interface IGeneralTree<TTree>
+public interface IGeneralTree<TTree, TPrimaryKey> : IEntity<TPrimaryKey>
+    where TPrimaryKey : struct
 {
       string Name { get; set; }
 
@@ -20,7 +22,27 @@ public interface IGeneralTree<TTree>
 
       TTree Parent { get; set; }
 
-      long? ParentId { get; set; }
+      TPrimaryKey? ParentId { get; set; }
+
+      ICollection<TTree> Children { get; set; }
+}
+```
+引用类型
+```csharp
+public interface IGeneralTree<TTree, TPrimaryKey> : IEntity<TPrimaryKey>
+    where TPrimaryKey : class
+{
+      string Name { get; set; }
+
+      string FullName { get; set; }
+
+      string Code { get; set; }
+
+      int Level { get; set; }
+
+      TTree Parent { get; set; }
+
+      TPrimaryKey ParentId { get; set; }
 
       ICollection<TTree> Children { get; set; }
 }
@@ -79,17 +101,35 @@ Id|Name|FullName|Code|Level|ParentId
 40|新华区|河北-石家庄-新华区|00003.00001.00004|3|36
 
 ## 使用 ##
+
+值类型
 ```csharp
-public interface IGeneralTreeManager<in TTree> 
-	where TTree : class, IGeneralTree<TTree>, IEntity<long>
+ public interface IGeneralTreeManager<in TTree, TPrimaryKey>
+      where TPrimaryKey : struct 
+      where TTree : class, IGeneralTree<TTree, TPrimaryKey>, IEntity<TPrimaryKey>
 {
-	Task CreateAsync(TTree tree);
+      Task CreateAsync(TTree tree);
 
-	Task UpdateAsync(TTree tree);
+      Task UpdateAsync(TTree tree);
 
-	Task MoveAsync(long id, long? parentId);
+      Task MoveAsync(TPrimaryKey id, TPrimaryKey? parentId);
 
-	Task DeleteAsync(long id);
+      Task DeleteAsync(TPrimaryKey id);
+}
+```
+引用类型
+```
+public interface IGeneralTreeManagerWithReferenceType<in TTree, in TPrimaryKey>
+      where TPrimaryKey : class 
+      where TTree : class, IGeneralTreeWithReferenceType<TTree, TPrimaryKey>, IEntity<TPrimaryKey>
+{
+      Task CreateAsync(TTree tree);
+
+      Task UpdateAsync(TTree tree);
+
+      Task MoveAsync(TPrimaryKey id, TPrimaryKey parentId);
+
+      Task DeleteAsync(TPrimaryKey id);
 }
 ```
 创建,更新,删除,移动(如改变父节点) 自动维护Code,Level,FullName.
@@ -106,4 +146,5 @@ var changanqu = await _regionRepository.FirstOrDefaultAsync(x => x.Name == "长�
 var hebei =
 	await _regionRepository.FirstOrDefaultAsync(x => x.Level == 1 && changanqu.Code.Contains(x.Code));
 ```
-详细Code特性介绍请访问:[ou-code](https://aspnetboilerplate.com/Pages/Documents/Zero/Organization-Units#ou-code)
+
+详细Code特性介绍请访问:[Organization-Units#ou-code](https://aspnetboilerplate.com/Pages/Documents/Zero/Organization-Units#ou-code)

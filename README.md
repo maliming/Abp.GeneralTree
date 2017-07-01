@@ -3,11 +3,9 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/ftg4ttr825gnmabl?svg=true)](https://ci.appveyor.com/project/maliming/Abp-Generaltree)
 [![NuGet](https://img.shields.io/nuget/vpre/abp.GeneralTree.svg)](https://www.nuget.org/packages/Abp.GeneralTree)
 
-根据 [abp module-zero](https://github.com/aspnetboilerplate/module-zero) 中 [Organizations](http://www.aspnetboilerplate.com/Pages/Documents/Zero/Organization-Units) 功能
+根据 [abp module-zero](https://github.com/aspnetboilerplate/module-zero) 中 [Organizations](http://www.aspnetboilerplate.com/Pages/Documents/Zero/Organization-Units) 功能,实现对树形结构Entity的管理.
 
-实现了对树形Entity通用的管理.
-
-值类型
+值类型 ```TPrimaryKey```
 ```csharp
 public interface IGeneralTree<TTree, TPrimaryKey> : IEntity<TPrimaryKey>
     where TPrimaryKey : struct
@@ -27,7 +25,7 @@ public interface IGeneralTree<TTree, TPrimaryKey> : IEntity<TPrimaryKey>
       ICollection<TTree> Children { get; set; }
 }
 ```
-引用类型
+引用类型 ```TPrimaryKey```
 ```csharp
 public interface IGeneralTree<TTree, TPrimaryKey> : IEntity<TPrimaryKey>
     where TPrimaryKey : class
@@ -49,14 +47,14 @@ public interface IGeneralTree<TTree, TPrimaryKey> : IEntity<TPrimaryKey>
 ```
 ### 主要特性
 
-- 基于Abp
+- 基于Abp模块系统,完美集成Abp框架
 - 支持自定义主键(值类型,引用类型)
-- 自动处理Code,Level,FullName的赋值
-- 根据Code特性快速查询,高效管理
+- 自动处理```Code``` ```Level``` ```FullName```的赋值,可扩展实体其它属性
+- 根据```Code``` ```Level```特性高效管理实体
 
 适合管理各种树结构如:地区,组织,类别,行业等拥有父子层次的各种Entity.
 
-数据:
+示例数据:
 
 Id|Name|FullName|Code|Level|ParentId
 :--:|:--:|:--:|:--:|:--:|:--:
@@ -101,9 +99,9 @@ Id|Name|FullName|Code|Level|ParentId
 39|桥西区|河北-石家庄-桥西区|00003.00001.00003|3|36
 40|新华区|河北-石家庄-新华区|00003.00001.00004|3|36
 
-## 使用 ##
+## 使用示例 ##
 
-值类型
+值类型 ```TPrimaryKey```
 ```csharp
  public interface IGeneralTreeManager<in TTree, TPrimaryKey>
       where TPrimaryKey : struct 
@@ -118,7 +116,7 @@ Id|Name|FullName|Code|Level|ParentId
       Task DeleteAsync(TPrimaryKey id);
 }
 ```
-引用类型
+引用类型 ```TPrimaryKey```
 ```csharp
 public interface IGeneralTreeManagerWithReferenceType<in TTree, in TPrimaryKey>
       where TPrimaryKey : class 
@@ -133,20 +131,27 @@ public interface IGeneralTreeManagerWithReferenceType<in TTree, in TPrimaryKey>
       Task DeleteAsync(TPrimaryKey id);
 }
 ```
-创建,更新,删除,移动(如改变父节点) 自动维护Code,Level,FullName.
-
-Code特性对于树状结构处理层级关系非常方便.
+创建,更新,删除,移动节点自动维护```Code``` ```Level``` ```FullName```,  Code特性对于树状结构处理层级关系以及查询数据非常方便.
 
 ```csharp
-//查询北京所有子数据
+//查询北京下所有子地区(不包括北京)
 var beijing = await _regionRepository.FirstOrDefaultAsync(x => x.Name == "北京");
 var beijingChildren = _regionRepository.GetAll()
 	.Where(x => x.Id != beijing.Id && x.Code.StartsWith(beijing.Code));
+    
+//查询北京下第一级子地区
+var beijing = await _regionRepository.FirstOrDefaultAsync(x => x.Name == "北京");
+var beijingChildren = _regionRepository.GetAll()
+	.Where(x => x.Level == beijing.Level - 1 && x.Code.StartsWith(beijing.Code));
 
-//根据子查询顶级
+//根据子地区查询所有父地区
+var changanqu = await _regionRepository.FirstOrDefaultAsync(x => x.Name == "长安区");
+var parents =
+	await _regionRepository.GetAllListAsync(x => changanqu.Code.StartsWith(x.Code));
+    
+//根据子地区查询顶级地区
 var changanqu = await _regionRepository.FirstOrDefaultAsync(x => x.Name == "长安区");
 var hebei =
 	await _regionRepository.FirstOrDefaultAsync(x => x.Level == 1 && changanqu.Code.Contains(x.Code));
 ```
-
-详细Code特性介绍请访问:[Organization-Units#ou-code](https://aspnetboilerplate.com/Pages/Documents/Zero/Organization-Units#ou-code)
+更多Code特性请访问: [Abp Zero Organization Unit](https://aspnetboilerplate.com/Pages/Documents/Zero/Organization-Units#ou-code) 文档

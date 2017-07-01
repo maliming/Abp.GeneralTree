@@ -12,12 +12,13 @@ using Abp.UI;
 
 namespace Abp.GeneralTree
 {
-    public class GeneralTreeManager<TTree> : IGeneralTreeManager<TTree>
-        where TTree : class, IGeneralTree<TTree>, IEntity<long>
+    public class GeneralTreeManager<TTree, TPrimaryKey> : IGeneralTreeManager<TTree, TPrimaryKey>
+        where TPrimaryKey : struct 
+        where TTree : class, IGeneralTree<TTree, TPrimaryKey>, IEntity<TPrimaryKey>
     {
-        private readonly IRepository<TTree, long> _generalTreeRepository;
+        private readonly IRepository<TTree, TPrimaryKey> _generalTreeRepository;
 
-        public GeneralTreeManager(IRepository<TTree, long> generalTreeRepository)
+        public GeneralTreeManager(IRepository<TTree, TPrimaryKey> generalTreeRepository)
         {
             _generalTreeRepository = generalTreeRepository;
         }

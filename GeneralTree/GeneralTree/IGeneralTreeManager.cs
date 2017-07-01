@@ -8,15 +8,16 @@ using Abp.Domain.Services;
 
 namespace Abp.GeneralTree
 {
-    public interface IGeneralTreeManager<in TTree> 
-        where TTree : class, IGeneralTree<TTree>, IEntity<long>
+    public interface IGeneralTreeManager<in TTree, TPrimaryKey>
+        where TPrimaryKey : struct 
+        where TTree : class, IGeneralTree<TTree, TPrimaryKey>, IEntity<TPrimaryKey>
     {
         Task CreateAsync(TTree tree);
 
         Task UpdateAsync(TTree tree);
 
-        Task MoveAsync(long id, long? parentId);
+        Task MoveAsync(TPrimaryKey id, TPrimaryKey? parentId);
 
-        Task DeleteAsync(long id);
+        Task DeleteAsync(TPrimaryKey id);
     }
 }

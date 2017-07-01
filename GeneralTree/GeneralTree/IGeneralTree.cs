@@ -7,7 +7,8 @@ using Abp.Domain.Entities;
 
 namespace Abp.GeneralTree
 {
-    public interface IGeneralTree<TTree>
+    public interface IGeneralTree<TTree, TPrimaryKey> : IEntity<TPrimaryKey>
+        where TPrimaryKey : struct 
     {
         string Name { get; set; }
 
@@ -19,7 +20,7 @@ namespace Abp.GeneralTree
 
         TTree Parent { get; set; }
 
-        long? ParentId { get; set; }
+        TPrimaryKey? ParentId { get; set; }
 
         ICollection<TTree> Children { get; set; }
     }

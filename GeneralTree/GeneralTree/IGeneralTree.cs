@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Abp.Domain.Entities;
 
 namespace Abp.GeneralTree
 {
     public interface IGeneralTree<TTree, TPrimaryKey> : IEntity<TPrimaryKey>
-        where TPrimaryKey : struct 
+        where TPrimaryKey : struct
     {
         string Name { get; set; }
 

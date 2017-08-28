@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Abp.Domain.Entities;
 
 namespace Abp.GeneralTree.GeneralTree
 {
     public interface IGeneralTreeManagerWithReferenceType<in TTree, in TPrimaryKey>
-        where TPrimaryKey : class 
+        where TPrimaryKey : class
         where TTree : class, IGeneralTreeWithReferenceType<TTree, TPrimaryKey>, IEntity<TPrimaryKey>
     {
         Task CreateAsync(TTree tree);

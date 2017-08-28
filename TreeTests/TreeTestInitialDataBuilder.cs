@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TreeApplication;
+﻿using TreeApplication;
 
 namespace TreeTests
 {
@@ -18,7 +13,7 @@ namespace TreeTests
 
         public void Build(TreeAppDbContext context)
         {
-           //init db
+            //init db
         }
     }
 }

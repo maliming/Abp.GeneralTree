@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
 using System.Threading.Tasks;
 using Abp.Domain.Entities;
 using Abp.Domain.Repositories;
@@ -11,8 +8,10 @@ using Abp.UI;
 
 namespace Abp.GeneralTree.GeneralTree
 {
-    public class GeneralTreeManagerWithReferenceType<TTree, TPrimaryKey> : IGeneralTreeManagerWithReferenceType<TTree, TPrimaryKey>
-        where TPrimaryKey : class 
+    public class
+        GeneralTreeManagerWithReferenceType<TTree, TPrimaryKey> : IGeneralTreeManagerWithReferenceType<TTree,
+            TPrimaryKey>
+        where TPrimaryKey : class
         where TTree : class, IGeneralTreeWithReferenceType<TTree, TPrimaryKey>, IEntity<TPrimaryKey>
     {
         private readonly IRepository<TTree, TPrimaryKey> _generalTreeRepository;
@@ -42,14 +41,14 @@ namespace Abp.GeneralTree.GeneralTree
                 tree.FullName = tree.Name;
             }
 
-            await CheckSameNameAsync(tree);
+            CheckSameName(tree);
             await _generalTreeRepository.InsertAsync(tree);
         }
 
         [UnitOfWork]
         public virtual async Task UpdateAsync(TTree tree)
         {
-            await CheckSameNameAsync(tree);
+            CheckSameName(tree);
 
             var children = await GetChildrenAsync(tree.Id, true);
             var oldFullName = tree.FullName;
@@ -95,7 +94,7 @@ namespace Abp.GeneralTree.GeneralTree
             tree.ParentId = parentId;
             tree.FullName = await GetChildFullNameAsync(parentId, tree.Name);
 
-            await CheckSameNameAsync(tree);
+            CheckSameName(tree);
 
             //Update Children Codes and FullName
             foreach (var child in children)
@@ -111,16 +110,15 @@ namespace Abp.GeneralTree.GeneralTree
         [UnitOfWork]
         public virtual async Task DeleteAsync(TPrimaryKey id)
         {
-            var children = await GetChildrenAsync(id, true);
-            foreach (var child in children)
+            var tree = await _generalTreeRepository.FirstOrDefaultAsync(id);
+            if (tree != null)
             {
-                await _generalTreeRepository.DeleteAsync(child);
+                await _generalTreeRepository.DeleteAsync(x => x.Code.StartsWith(tree.Code));
             }
-            await _generalTreeRepository.DeleteAsync(id);
         }
 
         /// <summary>
-        /// Get next child code
+        ///     Get next child code
         /// </summary>
         /// <param name="parentId"></param>
         /// <returns></returns>
@@ -144,7 +142,7 @@ namespace Abp.GeneralTree.GeneralTree
         }
 
         /// <summary>
-        /// Get Code
+        ///     Get Code
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -154,7 +152,7 @@ namespace Abp.GeneralTree.GeneralTree
         }
 
         /// <summary>
-        /// Get all children, can be recursively
+        ///     Get all children, can be recursively
         /// </summary>
         /// <param name="parentId"></param>
         /// <param name="recursive"></param>
@@ -178,16 +176,14 @@ namespace Abp.GeneralTree.GeneralTree
         }
 
         /// <summary>
-        /// Check if there are same names at the same tree level
+        ///     Check if there are same names at the same tree level
         /// </summary>
         /// <param name="tree"></param>
         /// <returns></returns>
-        private async Task CheckSameNameAsync(TTree tree)
+        private void CheckSameName(TTree tree)
         {
-            var siblings = (await GetChildrenAsync(tree.ParentId))
-                .Where(x => !x.Id.Equals(tree.Id));
-
-            if (siblings.Any(x => x.Name == tree.Name))
+            if (_generalTreeRepository.GetAll().Where(x => x.ParentId == tree.ParentId && x.Id != tree.Id)
+                .Any(x => x.Name == tree.Name))
             {
                 throw new UserFriendlyException(
                     $"There is already an tree with name {tree.Name}. Two tree with same name can not be created in same level.");
@@ -195,7 +191,7 @@ namespace Abp.GeneralTree.GeneralTree
         }
 
         /// <summary>
-        /// Get Child FullName Async
+        ///     Get Child FullName Async
         /// </summary>
         /// <param name="parentId"></param>
         /// <param name="childFullName"></param>

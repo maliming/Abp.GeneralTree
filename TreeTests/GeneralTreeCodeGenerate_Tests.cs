@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Abp.GeneralTree;
+﻿using Abp.GeneralTree;
 using Shouldly;
 using Xunit;
 
@@ -18,6 +13,27 @@ namespace TreeTests
             GeneralTreeCodeGenerate.CreateCode(42).ShouldBe("00042");
             GeneralTreeCodeGenerate.CreateCode(1, 2).ShouldBe("00001.00002");
             GeneralTreeCodeGenerate.CreateCode(1, 2, 3).ShouldBe("00001.00002.00003");
+        }
+
+        [Fact]
+        public void Test_GetLastCode()
+        {
+            GeneralTreeCodeGenerate.GetLastCode("00001").ShouldBe("00001");
+            GeneralTreeCodeGenerate.GetLastCode("00001.00002.00003").ShouldBe("00003");
+        }
+
+        [Fact]
+        public void Test_GetNextCode()
+        {
+            GeneralTreeCodeGenerate.GetNextCode("00001").ShouldBe("00002");
+            GeneralTreeCodeGenerate.GetNextCode("00001.00001").ShouldBe("00001.00002");
+        }
+
+        [Fact]
+        public void Test_GetParentCode()
+        {
+            GeneralTreeCodeGenerate.GetParentCode("00001").ShouldBe(null);
+            GeneralTreeCodeGenerate.GetParentCode("00001.00002.00003").ShouldBe("00001.00002");
         }
 
         [Fact]
@@ -39,27 +55,6 @@ namespace TreeTests
         {
             GeneralTreeCodeGenerate.RemoveParentCode("00001.00002.00003", "00001").ShouldBe("00002.00003");
             GeneralTreeCodeGenerate.RemoveParentCode("00001.00002.00003", null).ShouldBe("00001.00002.00003");
-        }
-
-        [Fact]
-        public void Test_GetNextCode()
-        {
-            GeneralTreeCodeGenerate.GetNextCode("00001").ShouldBe("00002");
-            GeneralTreeCodeGenerate.GetNextCode("00001.00001").ShouldBe("00001.00002");
-        }
-
-        [Fact]
-        public void Test_GetLastCode()
-        {
-            GeneralTreeCodeGenerate.GetLastCode("00001").ShouldBe("00001");
-            GeneralTreeCodeGenerate.GetLastCode("00001.00002.00003").ShouldBe("00003");
-        }
-
-        [Fact]
-        public void Test_GetParentCode()
-        {
-            GeneralTreeCodeGenerate.GetParentCode("00001").ShouldBe(null);
-            GeneralTreeCodeGenerate.GetParentCode("00001.00002.00003").ShouldBe("00001.00002");
         }
     }
 }

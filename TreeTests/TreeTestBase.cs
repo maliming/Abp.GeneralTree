@@ -1,18 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.Common;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Abp.TestBase;
-using EntityFramework.DynamicFilters;
-using System.Data.Entity;
 using Abp;
-using Abp.Configuration.Startup;
-using Abp.Domain.Uow;
-using Abp.Runtime.Session;
+using Abp.TestBase;
 using Castle.MicroKernel.Registration;
 using Effort;
+using EntityFramework.DynamicFilters;
 using TreeApplication;
 
 namespace TreeTests
@@ -31,9 +24,9 @@ namespace TreeTests
             //Fake DbConnection using Effort!
             LocalIocManager.IocContainer.Register(
                 Component.For<DbConnection>()
-                    .UsingFactoryMethod(Effort.DbConnectionFactory.CreateTransient)
+                    .UsingFactoryMethod(DbConnectionFactory.CreateTransient)
                     .LifestyleSingleton()
-                );
+            );
 
             base.PreInitialize();
         }

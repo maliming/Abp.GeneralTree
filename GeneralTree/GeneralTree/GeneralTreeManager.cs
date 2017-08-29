@@ -27,16 +27,14 @@ namespace Abp.GeneralTree
             tree.Code = await GetNextChildCodeAsync(tree.ParentId);
             tree.Level = tree.Code.Split('.').Length;
 
-            if (tree.ParentId.HasValue)
-            {
+            if (tree.ParentId.HasValue) {
                 var parent =
                     await _generalTreeRepository.FirstOrDefaultAsync(EqualId(tree.ParentId.Value));
                 Check.NotNull(parent, nameof(parent));
 
                 tree.FullName = parent.FullName + "-" + tree.Name;
             }
-            else
-            {
+            else {
                 //root
                 tree.FullName = tree.Name;
             }
@@ -53,20 +51,17 @@ namespace Abp.GeneralTree
             var children = await GetChildrenAsync(tree.Id, true);
             var oldFullName = tree.FullName;
 
-            if (tree.ParentId.HasValue)
-            {
+            if (tree.ParentId.HasValue) {
                 var parent = await _generalTreeRepository.FirstOrDefaultAsync(EqualId(tree.ParentId.Value));
                 Check.NotNull(parent, nameof(parent));
 
                 tree.FullName = parent.FullName + "-" + tree.Name;
             }
-            else
-            {
+            else {
                 tree.FullName = tree.Name;
             }
 
-            foreach (var child in children)
-            {
+            foreach (var child in children) {
                 child.FullName = GeneralTreeCodeGenerate.MergeFullName(tree.FullName,
                     GeneralTreeCodeGenerate.RemoveParentCode(child.FullName, oldFullName));
             }
@@ -76,8 +71,7 @@ namespace Abp.GeneralTree
         public virtual async Task MoveAsync(TPrimaryKey id, TPrimaryKey? parentId)
         {
             var tree = await _generalTreeRepository.GetAsync(id);
-            if (tree.ParentId.Equals(parentId))
-            {
+            if (tree.ParentId.Equals(parentId)) {
                 return;
             }
 
@@ -97,8 +91,7 @@ namespace Abp.GeneralTree
             CheckSameName(tree);
 
             //Update Children Codes and FullName
-            foreach (var child in children)
-            {
+            foreach (var child in children) {
                 child.Code = GeneralTreeCodeGenerate.MergeCode(tree.Code,
                     GeneralTreeCodeGenerate.RemoveParentCode(child.Code, oldCode));
                 child.FullName = GeneralTreeCodeGenerate.MergeFullName(tree.FullName,
@@ -111,8 +104,7 @@ namespace Abp.GeneralTree
         public virtual async Task DeleteAsync(TPrimaryKey id)
         {
             var tree = await _generalTreeRepository.FirstOrDefaultAsync(id);
-            if (tree != null)
-            {
+            if (tree != null) {
                 await _generalTreeRepository.DeleteAsync(x => x.Code.StartsWith(tree.Code));
             }
         }
@@ -127,11 +119,9 @@ namespace Abp.GeneralTree
             var lastChild =
                 _generalTreeRepository.GetAll()
                     .Where(Equal(parentId, "ParentId"))
-                    .OrderBy(x => x.Code)
-                    .ToList()
-                    .LastOrDefault();
-            if (lastChild != null)
-            {
+                    .OrderByDescending(x => x.Code)
+                    .FirstOrDefault();
+            if (lastChild != null) {
                 //Get the next code
                 return GeneralTreeCodeGenerate.GetNextCode(lastChild.Code);
             }
@@ -159,13 +149,11 @@ namespace Abp.GeneralTree
         /// <returns></returns>
         private async Task<List<TTree>> GetChildrenAsync(TPrimaryKey? parentId, bool recursive = false)
         {
-            if (!recursive)
-            {
+            if (!recursive) {
                 return await _generalTreeRepository.GetAllListAsync(Equal(parentId, "ParentId"));
             }
 
-            if (!parentId.HasValue)
-            {
+            if (!parentId.HasValue) {
                 return await _generalTreeRepository.GetAllListAsync();
             }
 
@@ -183,8 +171,7 @@ namespace Abp.GeneralTree
         private void CheckSameName(TTree tree)
         {
             if (_generalTreeRepository.GetAll().Where(Equal(tree.ParentId, "ParentId")).Where(NotEqualId(tree.Id))
-                .Any(x => x.Name == tree.Name))
-            {
+                .Any(x => x.Name == tree.Name)) {
                 throw new UserFriendlyException(
                     $"There is already an tree with name {tree.Name}. Two tree with same name can not be created in same level.");
             }

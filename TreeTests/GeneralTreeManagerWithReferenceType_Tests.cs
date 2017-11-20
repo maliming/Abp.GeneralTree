@@ -21,7 +21,7 @@ namespace TreeTests
 
         private readonly IGeneralTreeManagerWithReferenceType<Region2, string> _generalRegion2TreeManager;
 
-        private Region2 GetOrganization(string name)
+        private Region2 GetRegion(string name)
         {
             return UsingDbContext(context =>
             {
@@ -31,7 +31,7 @@ namespace TreeTests
             });
         }
 
-        private async Task<Region2> CreateOrganization(string name, string parentId = null)
+        private async Task<Region2> CreateRegion(string name, string parentId = null)
         {
             var region = new Region2
             {
@@ -67,7 +67,7 @@ namespace TreeTests
             await _generalRegion2TreeManager.CreateAsync(dongcheng);
 
             //Assert
-            var xc = GetOrganization("xicheng");
+            var xc = GetRegion("xicheng");
             xc.ShouldNotBeNull();
             xc.Name.ShouldBe("xicheng");
             xc.FullName.ShouldBe("beijing-xicheng");
@@ -75,7 +75,7 @@ namespace TreeTests
             xc.Level.ShouldBe(beijing.Level + 1);
             xc.ParentId.ShouldBe(beijing.Id);
 
-            var dc = GetOrganization("dongcheng");
+            var dc = GetRegion("dongcheng");
             dc.ShouldNotBeNull();
             dc.Name.ShouldBe("dongcheng");
             dc.FullName.ShouldBe("beijing-dongcheng");
@@ -111,27 +111,27 @@ namespace TreeTests
         public async Task Delete_Test()
         {
             //Act
-            var hebei = await CreateOrganization("hebei");
+            var hebei = await CreateRegion("hebei");
 
-            await CreateOrganization("shijiazhuang", hebei.Id);
+            await CreateRegion("shijiazhuang", hebei.Id);
 
-            var chengde = await CreateOrganization("chengde", hebei.Id);
-            await CreateOrganization("shaungqiao", chengde.Id);
-            await CreateOrganization("shaungluan", chengde.Id);
+            var chengde = await CreateRegion("chengde", hebei.Id);
+            await CreateRegion("shaungqiao", chengde.Id);
+            await CreateRegion("shaungluan", chengde.Id);
 
             await _generalRegion2TreeManager.DeleteAsync(hebei.Id);
 
             //Assert
-            var hb = GetOrganization("hebei");
+            var hb = GetRegion("hebei");
             hb.ShouldBeNull();
 
-            var sjz = GetOrganization("shijiazhuang");
+            var sjz = GetRegion("shijiazhuang");
             sjz.ShouldBeNull();
 
-            var cd = GetOrganization("chengde");
+            var cd = GetRegion("chengde");
             cd.ShouldBeNull();
 
-            var cdsq = GetOrganization("shaungqiao");
+            var cdsq = GetRegion("shaungqiao");
             cdsq.ShouldBeNull();
         }
 
@@ -139,23 +139,23 @@ namespace TreeTests
         public async Task Move_Test()
         {
             //Act
-            var beijing = await CreateOrganization("beijing");
-            await CreateOrganization("dongcheng", beijing.Id);
-            await CreateOrganization("xicheng", beijing.Id);
+            var beijing = await CreateRegion("beijing");
+            await CreateRegion("dongcheng", beijing.Id);
+            await CreateRegion("xicheng", beijing.Id);
 
-            var hebei = await CreateOrganization("hebei");
-            await CreateOrganization("shijiazhuang", hebei.Id);
-            var chengde = await CreateOrganization("chengde", hebei.Id);
+            var hebei = await CreateRegion("hebei");
+            await CreateRegion("shijiazhuang", hebei.Id);
+            var chengde = await CreateRegion("chengde", hebei.Id);
 
-            await CreateOrganization("shaungqiao", chengde.Id);
-            await CreateOrganization("shaungluan", chengde.Id);
+            await CreateRegion("shaungqiao", chengde.Id);
+            await CreateRegion("shaungluan", chengde.Id);
 
-            var beijingLastChild = GetOrganization("xicheng");
+            var beijingLastChild = GetRegion("xicheng");
             beijingLastChild.ShouldNotBeNull();
             await _generalRegion2TreeManager.MoveAsync(chengde.Id, beijing.Id);
 
             //Assert
-            var cd = GetOrganization(chengde.Name);
+            var cd = GetRegion(chengde.Name);
             cd.ShouldNotBeNull();
             cd.FullName.ShouldBe(beijing.FullName + "-" + chengde.Name);
             cd.ParentId.ShouldBe(beijing.Id);
@@ -273,6 +273,134 @@ namespace TreeTests
                 newbeijing.Name.ShouldBe("newbeijing");
                 newbeijing.FullName.ShouldBe("newbeijing");
             });
+        }
+
+        [Fact]
+        public async Task BulkCreate_Test()
+        {
+            //Act
+            var beijing = new Region2
+            {
+                Name = "beijing"
+            };
+
+            var xicheng = new Region2
+            {
+                Name = "xicheng",
+                ParentId = beijing.Id
+            };
+
+            var dongcheng = new Region2
+            {
+                Name = "dongcheng",
+                ParentId = beijing.Id
+            };
+
+            beijing.Children = new List<Region2>
+            {
+                xicheng,
+                dongcheng
+            };
+
+            await _generalRegion2TreeManager.BulkCreateAsync(beijing);
+
+            //Assert
+            var bj = GetRegion("beijing");
+            bj.ShouldNotBeNull();
+            bj.Name.ShouldBe("beijing");
+            bj.FullName.ShouldBe("beijing");
+            bj.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1));
+            bj.Level.ShouldBe(1);
+            bj.ParentId.ShouldBeNull();
+
+            var xc = GetRegion("xicheng");
+            xc.ShouldNotBeNull();
+            xc.Name.ShouldBe("xicheng");
+            xc.FullName.ShouldBe("beijing-xicheng");
+            xc.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1, 1));
+            xc.Level.ShouldBe(beijing.Level + 1);
+            xc.ParentId.ShouldBe(beijing.Id);
+
+            var dc = GetRegion("dongcheng");
+            dc.ShouldNotBeNull();
+            dc.Name.ShouldBe("dongcheng");
+            dc.FullName.ShouldBe("beijing-dongcheng");
+            dc.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1, 2));
+            dc.Level.ShouldBe(beijing.Level + 1);
+            dc.ParentId.ShouldBe(beijing.Id);
+        }
+
+        [Fact]
+        public async Task BulkCreate_ExistTree_Test()
+        {
+            //Arrange
+            var hebei = new Region2
+            {
+                Name = "hebei",
+                FullName = "hebei",
+                Code = "00001",
+                Level = 1
+            };
+
+            await UsingDbContextAsync(async context =>
+            {
+                context.Region2.Add(hebei);
+                await context.SaveChangesAsync();
+
+                context.Region2.Add(new Region2
+                {
+                    Name = "shijiazhuang",
+                    FullName = "hebei-shijiazhuang",
+                    Code = "00001.00001",
+                    Level = 2,
+                    ParentId = hebei.Id
+                });
+                await context.SaveChangesAsync();
+            });
+
+            var chengde = new Region2
+            {
+                Name = "chengde",
+                ParentId = hebei.Id,
+                Children = new List<Region2>
+                {
+                    new Region2
+                    {
+                        Name = "shuangqiaoqu",
+                    },
+                    new Region2
+                    {
+                        Name = "shuangluanqu",
+                    }
+                }
+            };
+
+            await _generalRegion2TreeManager.BulkCreateAsync(chengde);
+
+            //Assert
+            chengde = GetRegion("chengde");
+            chengde.ShouldNotBeNull();
+            chengde.Name.ShouldBe("chengde");
+            chengde.FullName.ShouldBe("hebei-chengde");
+            chengde.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1, 2));
+            chengde.Level.ShouldBe(2);
+            chengde.ParentId.ShouldBe(hebei.Id);
+
+            var shuangqiaoqu = GetRegion("shuangqiaoqu");
+            shuangqiaoqu.ShouldNotBeNull();
+            shuangqiaoqu.Name.ShouldBe("shuangqiaoqu");
+            shuangqiaoqu.FullName.ShouldBe("hebei-chengde-shuangqiaoqu");
+            shuangqiaoqu.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1, 2, 1));
+            shuangqiaoqu.Level.ShouldBe(chengde.Level + 1);
+            shuangqiaoqu.ParentId.ShouldBe(chengde.Id);
+
+            var shuangluanqu = GetRegion("shuangluanqu");
+            shuangluanqu.ShouldNotBeNull();
+            shuangluanqu.Name.ShouldBe("shuangluanqu");
+            shuangluanqu.FullName.ShouldBe("hebei-chengde-shuangluanqu");
+            shuangluanqu.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1, 2, 2));
+            shuangluanqu.Level.ShouldBe(chengde.Level + 1);
+            shuangluanqu.ParentId.ShouldBe(chengde.Id);
         }
     }
 }

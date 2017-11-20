@@ -24,6 +24,20 @@ namespace Abp.GeneralTree.GeneralTree
         [UnitOfWork]
         public virtual async Task CreateAsync(TTree tree)
         {
+            await _generalTreeRepository.InsertAsync(await GenerateTree(tree));
+        }
+
+        [UnitOfWork]
+        public virtual async Task BulkCreateAsync(TTree tree)
+        {
+            //Traverse Tree
+            TraverseTree(await GenerateTree(tree), tree.Children);
+
+            await _generalTreeRepository.InsertAsync(tree);
+        }
+
+        private async Task<TTree> GenerateTree(TTree tree)
+        {
             tree.Code = await GetNextChildCodeAsync(tree.ParentId);
             tree.Level = tree.Code.Split('.').Length;
 
@@ -40,7 +54,36 @@ namespace Abp.GeneralTree.GeneralTree
             }
 
             CheckSameName(tree);
-            await _generalTreeRepository.InsertAsync(tree);
+
+            return tree;
+        }
+
+        private static void TraverseTree(TTree parent, ICollection<TTree> children)
+        {
+            if (children == null || !children.Any()) {
+                return;
+            }
+
+            children.ForEach((tree, index) =>
+            {
+                //CheckSameName
+                if (children.Count(x => x.Name == tree.Name) > 1) {
+                    throw new UserFriendlyException(
+                        $"There is already an tree with name {tree.Name}. Two tree with same name can not be created in same level.");
+                }
+
+                tree.Code = index == 0
+                    ? GeneralTreeCodeGenerate.MergeCode(parent.Code, GeneralTreeCodeGenerate.CreateCode(1))
+                    : GeneralTreeCodeGenerate.GetNextCode(children.ElementAt(index - 1).Code);
+
+                tree.Level = tree.Code.Split('.').Length;
+                tree.FullName = parent.FullName + "-" + tree.Name;
+            });
+
+            children.ForEach(tree =>
+            {
+                TraverseTree(tree, tree.Children);
+            });
         }
 
         [UnitOfWork]

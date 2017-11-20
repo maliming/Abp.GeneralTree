@@ -5,10 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="GeneralTree\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Abp" Version="3.2.2" />
   </ItemGroup>
 

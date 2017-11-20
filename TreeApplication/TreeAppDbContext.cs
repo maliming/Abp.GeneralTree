@@ -9,7 +9,7 @@ namespace TreeApplication
 {
     public class TreeAppDbContext : AbpDbContext
     {
-        public TreeAppDbContext(DbContextOptions options)
+        public TreeAppDbContext(DbContextOptions<TreeAppDbContext> options)
             : base(options)
         {
         }

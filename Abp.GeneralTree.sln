@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TreeApplication", "TreeAppl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TreeTests", "TreeTests\TreeTests.csproj", "{25D58478-5776-473B-AFE8-0B76DB67BC12}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{571DD7CE-2248-4829-A687-0D36606D3DC4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Src", "Src", "{D35595DC-D469-4B31-8C76-5DEF6BF27912}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,6 +34,11 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1BA61285-DC15-4C1D-BA00-C3D59E4111C2} = {D35595DC-D469-4B31-8C76-5DEF6BF27912}
+		{C1ADB446-B581-4F2D-BC6D-AE4FF86C5B66} = {571DD7CE-2248-4829-A687-0D36606D3DC4}
+		{25D58478-5776-473B-AFE8-0B76DB67BC12} = {571DD7CE-2248-4829-A687-0D36606D3DC4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {59E9DC13-88AB-485E-8D15-5AAA8677D3B4}

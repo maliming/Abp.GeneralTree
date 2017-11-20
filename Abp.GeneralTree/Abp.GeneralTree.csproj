@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Abp" Version="3.2.2" />
+    <PackageReference Include="Abp" Version="3.2.3" />
   </ItemGroup>
 
 </Project>

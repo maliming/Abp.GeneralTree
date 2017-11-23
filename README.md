@@ -3,9 +3,9 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/ftg4ttr825gnmabl?svg=true)](https://ci.appveyor.com/project/maliming/Abp-Generaltree)
 [![NuGet](https://img.shields.io/nuget/vpre/abp.GeneralTree.svg)](https://www.nuget.org/packages/Abp.GeneralTree)
 
-根据 [abp module-zero](https://github.com/aspnetboilerplate/module-zero) 中 [Organizations](http://www.aspnetboilerplate.com/Pages/Documents/Zero/Organization-Units) 功能,实现对树形结构Entity的管理.
+Based on the idea of [Organizations](http://www.aspnetboilerplate.com/Pages/Documents/Zero/Organization-Units) in [abp module-zero](https://github.com/aspnetboilerplate/module-zero), we did a general management of the entity tree structure.
 
-值类型 ```TPrimaryKey```
+Value Type ```TPrimaryKey```
 ```csharp
 public interface IGeneralTree<TTree, TPrimaryKey> : IEntity<TPrimaryKey>
     where TPrimaryKey : struct
@@ -25,7 +25,7 @@ public interface IGeneralTree<TTree, TPrimaryKey> : IEntity<TPrimaryKey>
       ICollection<TTree> Children { get; set; }
 }
 ```
-引用类型 ```TPrimaryKey```
+Reference Type ```TPrimaryKey```
 ```csharp
 public interface IGeneralTree<TTree, TPrimaryKey> : IEntity<TPrimaryKey>
     where TPrimaryKey : class
@@ -45,16 +45,17 @@ public interface IGeneralTree<TTree, TPrimaryKey> : IEntity<TPrimaryKey>
       ICollection<TTree> Children { get; set; }
 }
 ```
-### 主要特性
 
-- 基于Abp模块系统,完美集成Abp框架
-- 支持自定义主键(值类型,引用类型)
-- 自动处理```Code``` ```Level``` ```FullName```的赋值,可扩展实体其它属性
-- 根据```Code``` ```Level```特性高效管理实体
+### Features
 
-适合管理各种树结构如:地区,组织,类别,行业等拥有父子层次的各种Entity.
+- Based on Abp module system, perfect integration Abp framework.
+- Support for custom primary key (value type, reference type).
+- Automating the assignment of Code,Level,FullName extends other attributes of the entity.
+- Efficient management of entities based on Code, Level features.
+- Suitable for managing a variety of tree structure entities, such as: region, organization, category, industry and other entities with parent-child Entity.
 
-示例数据:
+
+### Example
 
 Id|Name|FullName|Code|Level|ParentId
 :--:|:--:|:--:|:--:|:--:|:--:
@@ -99,59 +100,114 @@ Id|Name|FullName|Code|Level|ParentId
 39|桥西区|河北-石家庄-桥西区|00003.00001.00003|3|36
 40|新华区|河北-石家庄-新华区|00003.00001.00004|3|36
 
-## 使用示例 ##
-
-值类型 ```TPrimaryKey```
+Value Type ```TPrimaryKey```
 ```csharp
- public interface IGeneralTreeManager<in TTree, TPrimaryKey>
-      where TPrimaryKey : struct 
-      where TTree : class, IGeneralTree<TTree, TPrimaryKey>, IEntity<TPrimaryKey>
+public interface IGeneralTreeManager<in TTree, TPrimaryKey>
+	where TPrimaryKey : struct
+	where TTree : class, IGeneralTree<TTree, TPrimaryKey>, IEntity<TPrimaryKey>
 {
-      Task CreateAsync(TTree tree);
+	Task CreateAsync(TTree tree);
 
-      Task UpdateAsync(TTree tree);
+	Task BulkCreateAsync(TTree tree);
 
-      Task MoveAsync(TPrimaryKey id, TPrimaryKey? parentId);
+	Task UpdateAsync(TTree tree);
 
-      Task DeleteAsync(TPrimaryKey id);
+	Task MoveAsync(TPrimaryKey id, TPrimaryKey? parentId);
+
+	Task DeleteAsync(TPrimaryKey id);
 }
 ```
-引用类型 ```TPrimaryKey```
+Reference Type ```TPrimaryKey```
 ```csharp
 public interface IGeneralTreeManagerWithReferenceType<in TTree, in TPrimaryKey>
-      where TPrimaryKey : class 
-      where TTree : class, IGeneralTreeWithReferenceType<TTree, TPrimaryKey>, IEntity<TPrimaryKey>
+	where TPrimaryKey : class
+	where TTree : class, IGeneralTreeWithReferenceType<TTree, TPrimaryKey>, IEntity<TPrimaryKey>
 {
-      Task CreateAsync(TTree tree);
+	Task CreateAsync(TTree tree);
 
-      Task UpdateAsync(TTree tree);
+	Task BulkCreateAsync(TTree tree);
 
-      Task MoveAsync(TPrimaryKey id, TPrimaryKey parentId);
+	Task UpdateAsync(TTree tree);
 
-      Task DeleteAsync(TPrimaryKey id);
+	Task MoveAsync(TPrimaryKey id, TPrimaryKey parentId);
+
+	Task DeleteAsync(TPrimaryKey id);
 }
 ```
-创建,更新,删除,移动节点自动维护```Code``` ```Level``` ```FullName```,  Code特性对于树状结构处理层级关系以及查询数据非常方便.
+Create, update, delete, mobile node automatically maintains Code Level FullName, Code features for the tree structure to deal with hierarchical relationships and query data is very convenient.
 
 ```csharp
-//查询北京下所有子地区(不包括北京)
+//Query all sub-districts in Beijing (excluding Beijing)
 var beijing = await _regionRepository.FirstOrDefaultAsync(x => x.Name == "北京");
 var beijingChildren = _regionRepository.GetAll()
 	.Where(x => x.Id != beijing.Id && x.Code.StartsWith(beijing.Code));
     
-//查询北京下第一级子地区
+//Query the first sub-district under Beijing
 var beijing = await _regionRepository.FirstOrDefaultAsync(x => x.Name == "北京");
 var beijingChildren = _regionRepository.GetAll()
 	.Where(x => x.Level == beijing.Level - 1 && x.Code.StartsWith(beijing.Code));
 
-//根据子地区查询所有父地区
+//Query all the parent regions by sub-region
 var changanqu = await _regionRepository.FirstOrDefaultAsync(x => x.Name == "长安区");
 var parents =
 	await _regionRepository.GetAllListAsync(x => changanqu.Code.StartsWith(x.Code));
     
-//根据子地区查询顶级地区
+//According to sub-region query top regions
 var changanqu = await _regionRepository.FirstOrDefaultAsync(x => x.Name == "长安区");
 var hebei =
 	await _regionRepository.FirstOrDefaultAsync(x => x.Level == 1 && changanqu.Code.Contains(x.Code));
 ```
-更多Code特性请访问: [Abp Zero Organization Unit](https://aspnetboilerplate.com/Pages/Documents/Zero/Organization-Units#ou-code) 文档
+
+Batch insert (Fast and efficient).
+```csharp
+//Act
+var beijing = new Region
+{
+	Name = "beijing"
+};
+var xicheng = new Region
+{
+	Name = "xicheng",
+	ParentId = beijing.Id
+};
+var dongcheng = new Region
+{
+	Name = "dongcheng",
+	ParentId = beijing.Id
+};
+beijing.Children = new List<Region>
+{
+	xicheng,
+	dongcheng
+};
+
+//Batch insert
+await _generalRegionTreeManager.BulkCreateAsync(beijing);
+
+//Assert
+var bj = GetRegion("beijing");
+bj.ShouldNotBeNull();
+bj.Name.ShouldBe("beijing");
+bj.FullName.ShouldBe("beijing");
+bj.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1));
+bj.Level.ShouldBe(1);
+bj.ParentId.ShouldBeNull();
+
+var xc = GetRegion("xicheng");
+xc.ShouldNotBeNull();
+xc.Name.ShouldBe("xicheng");
+xc.FullName.ShouldBe("beijing-xicheng");
+xc.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1, 1));
+xc.Level.ShouldBe(beijing.Level + 1);
+xc.ParentId.ShouldBe(beijing.Id);
+
+var dc = GetRegion("dongcheng");
+dc.ShouldNotBeNull();
+dc.Name.ShouldBe("dongcheng");
+dc.FullName.ShouldBe("beijing-dongcheng");
+dc.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1, 2));
+dc.Level.ShouldBe(beijing.Level + 1);
+dc.ParentId.ShouldBe(beijing.Id);
+```
+
+More Code Features Please visit: [Abp Zero Organization Unit](https://aspnetboilerplate.com/Pages/Documents/Zero/Organization-Units#ou-code)

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Abp.Domain.Entities;
 
-namespace Abp.GeneralTree.GeneralTree
+namespace Abp.GeneralTree
 {
     public interface IGeneralTreeWithReferenceType<TTree, TPrimaryKey> : IEntity<TPrimaryKey>
         where TPrimaryKey : class

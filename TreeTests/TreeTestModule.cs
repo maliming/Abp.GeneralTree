@@ -1,18 +1,14 @@
-using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Abp.Domain.Uow;
-using Abp.EntityFrameworkCore;
 using Abp.Modules;
 using Abp.Runtime.Session;
 using Abp.TestBase;
 using Castle.MicroKernel.Registration;
+using Castle.Windsor.MsDependencyInjection;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using TreeApplication;
-using Xunit;
-using Castle.Windsor.MsDependencyInjection;
 
 namespace TreeTests
 {
@@ -54,24 +50,25 @@ namespace TreeTests
             IocManager.IocContainer.Register(
                 Component
                     .For<DbContextOptions<TreeAppDbContext>>()
-                    .UsingFactoryMethod((kernel) =>
+                    .UsingFactoryMethod(kernel =>
                     {
-                        lock (_tenantDbContextOptions) 
+                        lock (_tenantDbContextOptions)
                         {
                             var currentUow = kernel.Resolve<ICurrentUnitOfWorkProvider>().Current;
                             var abpSession = kernel.Resolve<IAbpSession>();
 
                             var tenantId = currentUow != null ? currentUow.GetTenantId() : abpSession.TenantId;
 
-                            if (tenantId == null) 
+                            if (tenantId == null)
                             {
                                 return _hostDbContextOptions;
                             }
 
-                            if (!_tenantDbContextOptions.ContainsKey(tenantId.Value)) 
+                            if (!_tenantDbContextOptions.ContainsKey(tenantId.Value))
                             {
                                 var optionsBuilder = new DbContextOptionsBuilder<TreeAppDbContext>();
-                                optionsBuilder.UseInMemoryDatabase(tenantId.Value.ToString()).UseInternalServiceProvider(serviceProvider);
+                                optionsBuilder.UseInMemoryDatabase(tenantId.Value.ToString())
+                                    .UseInternalServiceProvider(serviceProvider);
                                 _tenantDbContextOptions[tenantId.Value] = optionsBuilder.Options;
                             }
 

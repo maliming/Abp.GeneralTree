@@ -1,14 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Text;
 using System.Threading.Tasks;
 using Abp;
-using Abp.EntityFrameworkCore;
 using Abp.TestBase;
-using Castle.MicroKernel.Registration;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using TreeApplication;
 
 namespace TreeTests
@@ -48,8 +41,10 @@ namespace TreeTests
 
         protected void UsingDbContext(int? tenantId, Action<TreeAppDbContext> action)
         {
-            using (UsingTenantId(tenantId)) {
-                using (var context = LocalIocManager.Resolve<TreeAppDbContext>()) {
+            using (UsingTenantId(tenantId))
+            {
+                using (var context = LocalIocManager.Resolve<TreeAppDbContext>())
+                {
                     //context.DisableAllFilters();
                     action(context);
                     context.SaveChanges();
@@ -59,8 +54,10 @@ namespace TreeTests
 
         protected async Task UsingDbContextAsync(int? tenantId, Func<TreeAppDbContext, Task> action)
         {
-            using (UsingTenantId(tenantId)) {
-                using (var context = LocalIocManager.Resolve<TreeAppDbContext>()) {
+            using (UsingTenantId(tenantId))
+            {
+                using (var context = LocalIocManager.Resolve<TreeAppDbContext>())
+                {
                     //context.DisableAllFilters();
                     await action(context);
                     await context.SaveChangesAsync();
@@ -72,8 +69,10 @@ namespace TreeTests
         {
             T result;
 
-            using (UsingTenantId(tenantId)) {
-                using (var context = LocalIocManager.Resolve<TreeAppDbContext>()) {
+            using (UsingTenantId(tenantId))
+            {
+                using (var context = LocalIocManager.Resolve<TreeAppDbContext>())
+                {
                     //context.DisableAllFilters();
                     result = func(context);
                     context.SaveChanges();
@@ -87,8 +86,10 @@ namespace TreeTests
         {
             T result;
 
-            using (UsingTenantId(tenantId)) {
-                using (var context = LocalIocManager.Resolve<TreeAppDbContext>()) {
+            using (UsingTenantId(tenantId))
+            {
+                using (var context = LocalIocManager.Resolve<TreeAppDbContext>())
+                {
                     //context.DisableAllFilters();
                     result = await func(context);
                     await context.SaveChangesAsync();

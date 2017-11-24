@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Text;
-using Abp.EntityFrameworkCore;
+﻿using Abp.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace TreeApplication

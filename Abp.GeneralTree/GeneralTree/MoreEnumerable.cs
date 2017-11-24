@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Abp.GeneralTree
 {
     #region License and Terms
+
     // MoreLINQ - Extensions to LINQ to Objects
     // Copyright (c) 2008 Jonathan Skeet. All rights reserved.
     // 
@@ -19,6 +19,7 @@ namespace Abp.GeneralTree
     // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     // See the License for the specific language governing permissions and
     // limitations under the License.
+
     #endregion
 
     /// <summary>

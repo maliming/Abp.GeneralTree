@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using Abp.Domain.Entities;
-using Abp.GeneralTree.GeneralTree;
+using Abp.GeneralTree;
 
 namespace TreeApplication
 {

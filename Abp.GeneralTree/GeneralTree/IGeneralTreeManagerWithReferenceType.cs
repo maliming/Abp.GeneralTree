@@ -1,11 +1,10 @@
 ﻿using System.Threading.Tasks;
-using Abp.Domain.Entities;
 
 namespace Abp.GeneralTree
 {
     public interface IGeneralTreeManagerWithReferenceType<in TTree, in TPrimaryKey>
         where TPrimaryKey : class
-        where TTree : class, IGeneralTreeWithReferenceType<TTree, TPrimaryKey>, IEntity<TPrimaryKey>
+        where TTree : class, IGeneralTreeWithReferenceType<TTree, TPrimaryKey>
     {
         Task CreateAsync(TTree tree);
 

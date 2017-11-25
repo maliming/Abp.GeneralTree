@@ -1,11 +1,10 @@
 ﻿using System;
-using Abp.Domain.Entities;
 
 namespace Abp.GeneralTree
 {
     public class GeneralTreeConfiguration<TTree, TPrimaryKey> : IGeneralTreeConfiguration<TTree, TPrimaryKey>
         where TPrimaryKey : struct
-        where TTree : class, IGeneralTree<TTree, TPrimaryKey>, IEntity<TPrimaryKey>
+        where TTree : class, IGeneralTree<TTree, TPrimaryKey>
     {
         public GeneralTreeConfiguration()
         {
@@ -20,7 +19,7 @@ namespace Abp.GeneralTree
         GeneralTreeConfigurationWithReferenceType<TTree, TPrimaryKey> : IGeneralTreeConfigurationWithReferenceType<TTree
             , TPrimaryKey>
         where TPrimaryKey : class
-        where TTree : class, IGeneralTreeWithReferenceType<TTree, TPrimaryKey>, IEntity<TPrimaryKey>
+        where TTree : class, IGeneralTreeWithReferenceType<TTree, TPrimaryKey>
     {
         public GeneralTreeConfigurationWithReferenceType()
         {

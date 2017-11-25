@@ -1,5 +1,4 @@
 ﻿using Abp.Configuration.Startup;
-using Abp.Domain.Entities;
 
 namespace Abp.GeneralTree
 {
@@ -17,7 +16,7 @@ namespace Abp.GeneralTree
             TPrimaryKey>(
             this IModuleConfigurations moduleConfigurations)
             where TPrimaryKey : class
-            where TTree : class, IGeneralTreeWithReferenceType<TTree, TPrimaryKey>, IEntity<TPrimaryKey>
+            where TTree : class, IGeneralTreeWithReferenceType<TTree, TPrimaryKey>
         {
             return moduleConfigurations.AbpConfiguration
                 .Get<IGeneralTreeConfigurationWithReferenceType<TTree, TPrimaryKey>>();

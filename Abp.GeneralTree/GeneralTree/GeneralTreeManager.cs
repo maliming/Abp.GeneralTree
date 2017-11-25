@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Abp.Domain.Entities;
 using Abp.Domain.Repositories;
 using Abp.Domain.Uow;
 using Abp.UI;
@@ -12,7 +11,7 @@ namespace Abp.GeneralTree
 {
     public class GeneralTreeManager<TTree, TPrimaryKey> : IGeneralTreeManager<TTree, TPrimaryKey>
         where TPrimaryKey : struct
-        where TTree : class, IGeneralTree<TTree, TPrimaryKey>, IEntity<TPrimaryKey>
+        where TTree : class, IGeneralTree<TTree, TPrimaryKey>
     {
         private readonly IGeneralTreeConfiguration<TTree, TPrimaryKey> _generalTreeConfiguration;
         private readonly IRepository<TTree, TPrimaryKey> _generalTreeRepository;

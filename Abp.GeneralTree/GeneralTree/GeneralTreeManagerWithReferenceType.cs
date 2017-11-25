@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Abp.Domain.Entities;
 using Abp.Domain.Repositories;
 using Abp.Domain.Uow;
 using Abp.UI;
@@ -12,7 +11,7 @@ namespace Abp.GeneralTree
         GeneralTreeManagerWithReferenceType<TTree, TPrimaryKey> : IGeneralTreeManagerWithReferenceType<TTree,
             TPrimaryKey>
         where TPrimaryKey : class
-        where TTree : class, IGeneralTreeWithReferenceType<TTree, TPrimaryKey>, IEntity<TPrimaryKey>
+        where TTree : class, IGeneralTreeWithReferenceType<TTree, TPrimaryKey>
     {
         private readonly IGeneralTreeConfigurationWithReferenceType<TTree, TPrimaryKey> _generalTreeConfiguration;
         private readonly IRepository<TTree, TPrimaryKey> _generalTreeRepository;

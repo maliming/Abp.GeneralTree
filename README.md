@@ -1,9 +1,10 @@
+ 
+ <img src="https://raw.githubusercontent.com/maliming/Abp.GeneralTree/master/GeneralTree.png" width="200" height="200" /> 
+ 
 # Abp GeneralTree
 
 [![Build status](https://ci.appveyor.com/api/projects/status/ftg4ttr825gnmabl?svg=true)](https://ci.appveyor.com/project/maliming/Abp-Generaltree)
 [![NuGet](https://img.shields.io/nuget/vpre/abp.GeneralTree.svg)](https://www.nuget.org/packages/Abp.GeneralTree)
-
-Not dependent on ABP framework please visit:[GeneralTreeCore](https://github.com/maliming/GeneralTreeCore)
 
 Based on the idea of [Organizations](http://www.aspnetboilerplate.com/Pages/Documents/Zero/Organization-Units) in [abp module-zero](https://github.com/aspnetboilerplate/module-zero), we did a general management of the entity tree structure.
 

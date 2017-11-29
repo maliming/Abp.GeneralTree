@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Abp.EntityFrameworkCore" Version="3.2.3" />
-    <PackageReference Include="Abp.TestBase" Version="3.2.3" />
+    <PackageReference Include="Abp.EntityFrameworkCore" Version="3.2.5" />
+    <PackageReference Include="Abp.TestBase" Version="3.2.5" />
     <PackageReference Include="Castle.Windsor.MsDependencyInjection" Version="3.2.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="2.0.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />

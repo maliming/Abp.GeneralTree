@@ -9,7 +9,7 @@
 Based on the idea of [Organizations](http://www.aspnetboilerplate.com/Pages/Documents/Zero/Organization-Units) in [abp module-zero](https://github.com/aspnetboilerplate/module-zero), we did a general management of the entity tree structure.
 
 Value Type ```TPrimaryKey```
-```csharp
+``` csharp
 public interface IGeneralTree<TTree, TPrimaryKey> : IEntity<TPrimaryKey>
     where TPrimaryKey : struct
 {
@@ -29,7 +29,7 @@ public interface IGeneralTree<TTree, TPrimaryKey> : IEntity<TPrimaryKey>
 }
 ```
 Reference Type ```TPrimaryKey```
-```csharp
+``` csharp
 public interface IGeneralTree<TTree, TPrimaryKey> : IEntity<TPrimaryKey>
     where TPrimaryKey : class
 {
@@ -104,7 +104,7 @@ Id|Name|FullName|Code|Level|ParentId
 40|新华区|河北-石家庄-新华区|00003.00001.00004|3|36
 
 Value Type ```TPrimaryKey```
-```csharp
+``` csharp
 public interface IGeneralTreeManager<in TTree, TPrimaryKey>
 	where TPrimaryKey : struct
 	where TTree : class, IGeneralTree<TTree, TPrimaryKey>, IEntity<TPrimaryKey>
@@ -121,7 +121,7 @@ public interface IGeneralTreeManager<in TTree, TPrimaryKey>
 }
 ```
 Reference Type ```TPrimaryKey```
-```csharp
+``` csharp
 public interface IGeneralTreeManagerWithReferenceType<in TTree, in TPrimaryKey>
 	where TPrimaryKey : class
 	where TTree : class, IGeneralTreeWithReferenceType<TTree, TPrimaryKey>, IEntity<TPrimaryKey>
@@ -162,7 +162,7 @@ var hebei =
 ```
 
 Batch insert (Fast and efficient).
-```csharp
+``` csharp
 //Act
 var beijing = new Region
 {
@@ -211,6 +211,18 @@ dc.FullName.ShouldBe("beijing-dongcheng");
 dc.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1, 2));
 dc.Level.ShouldBe(beijing.Level + 1);
 dc.ParentId.ShouldBe(beijing.Id);
+```
+
+GeneralTreeModule Configuration
+``` csharp
+public override void PreInitialize()
+{
+	// You can customize some settings here.
+	Configuration.Modules.GeneralTree<Region, long>().ExceptionMessageFactory =
+		tree => $"{tree.Name} already exists!.";
+		
+	Configuration.Modules.GeneralTree<Region, long>().Hyphen = "=>";
+}
 ```
 
 More Code Features Please visit: [Abp Zero Organization Unit](https://aspnetboilerplate.com/Pages/Documents/Zero/Organization-Units#ou-code)

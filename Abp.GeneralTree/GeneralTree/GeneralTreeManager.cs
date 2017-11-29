@@ -51,7 +51,7 @@ namespace Abp.GeneralTree
                 var parent = await _generalTreeRepository.FirstOrDefaultAsync(EqualId(tree.ParentId.Value));
                 Check.NotNull(parent, nameof(parent));
 
-                tree.FullName = parent.FullName + "-" + tree.Name;
+                tree.FullName = parent.FullName + _generalTreeConfiguration.Hyphen + tree.Name;
             }
             else
             {
@@ -121,7 +121,7 @@ namespace Abp.GeneralTree
                     await _generalTreeRepository.FirstOrDefaultAsync(EqualId(tree.ParentId.Value));
                 Check.NotNull(parent, nameof(parent));
 
-                tree.FullName = parent.FullName + "-" + tree.Name;
+                tree.FullName = parent.FullName + _generalTreeConfiguration.Hyphen + tree.Name;
             }
             else
             {
@@ -154,7 +154,7 @@ namespace Abp.GeneralTree
                     : GeneralTreeCodeGenerate.GetNextCode(children.ElementAt(index - 1).Code);
 
                 tree.Level = tree.Code.Split('.').Length;
-                tree.FullName = parent.FullName + "-" + tree.Name;
+                tree.FullName = parent.FullName + _generalTreeConfiguration.Hyphen + tree.Name;
             });
 
             children.ForEach(tree => { TraverseTree(tree, tree.Children); });
@@ -240,7 +240,7 @@ namespace Abp.GeneralTree
         private async Task<string> GetChildFullNameAsync(TPrimaryKey? parentId, string childFullName)
         {
             var parent = await _generalTreeRepository.FirstOrDefaultAsync(EqualId(parentId));
-            return parent != null ? parent.FullName + "-" + childFullName : childFullName;
+            return parent != null ? parent.FullName + _generalTreeConfiguration.Hyphen + childFullName : childFullName;
         }
 
         #region EqualExpression

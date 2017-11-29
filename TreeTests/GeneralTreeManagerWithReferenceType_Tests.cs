@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Abp.Domain.Repositories;
+using Abp.Domain.Uow;
 using Abp.GeneralTree;
 using Abp.UI;
 using Shouldly;
@@ -168,6 +170,26 @@ namespace TreeTests
         }
 
         [Fact]
+        public async Task Create_Test()
+        {
+            //Act
+            var beijing = new Region2
+            {
+                Name = "beijing"
+            };
+            await _generalRegion2TreeManager.CreateAsync(beijing);
+
+            //Assert
+            var xc = GetRegion("beijing");
+            xc.ShouldNotBeNull();
+            xc.Name.ShouldBe("beijing");
+            xc.FullName.ShouldBe("beijing");
+            xc.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1));
+            xc.Level.ShouldBe(1);
+            xc.ParentId.ShouldBeNull();
+        }
+
+        [Fact]
         public async Task Create_Children_Test()
         {
             //Act
@@ -228,7 +250,8 @@ namespace TreeTests
 
             exception.ShouldNotBeNull();
             exception.ShouldBeOfType<UserFriendlyException>();
-            exception.Message.ShouldBe("beijing已经存在.");
+            exception.Message.ShouldBe(
+                "There is already an tree with name beijing. Two tree with same name can not be created in same level.");
         }
 
         [Fact]
@@ -397,6 +420,88 @@ namespace TreeTests
                 newbeijing.Name.ShouldBe("newbeijing");
                 newbeijing.FullName.ShouldBe("newbeijing");
             });
+        }
+
+        [Fact]
+        public async Task FullName_Hyphen_Test()
+        {
+            var uowManager = LocalIocManager.Resolve<IUnitOfWorkManager>();
+
+            using (var uow = uowManager.Begin())
+            {
+                var repository = LocalIocManager.Resolve<IRepository<Region2, string>>();
+                var config = new GeneralTreeConfigurationWithReferenceType<Region2, string>
+                {
+                    Hyphen = "->"
+                };
+
+                var manager =
+                    new GeneralTreeManagerWithReferenceType<Region2, string>(repository, config);
+
+                //Act
+                var beijing = new Region2
+                {
+                    Name = "beijing"
+                };
+                await manager.CreateAsync(beijing);
+                uowManager.Current.SaveChanges();
+
+                var xicheng = new Region2
+                {
+                    Name = "xicheng",
+                    ParentId = beijing.Id
+                };
+                await manager.CreateAsync(xicheng);
+                uowManager.Current.SaveChanges();
+
+                //Assert
+                var xc = GetRegion("xicheng");
+                xc.ShouldNotBeNull();
+                xc.Name.ShouldBe("xicheng");
+                xc.FullName.ShouldBe("beijing->xicheng");
+
+                uow.Complete();
+            }
+        }
+
+        [Fact]
+        public async Task ExceptionMessageFactory_Test()
+        {
+            var uowManager = LocalIocManager.Resolve<IUnitOfWorkManager>();
+
+            using (var uow = uowManager.Begin())
+            {
+                var repository = LocalIocManager.Resolve<IRepository<Region2, string>>();
+                var config = new GeneralTreeConfigurationWithReferenceType<Region2, string>
+                {
+                    ExceptionMessageFactory =
+                        tree => $"{tree.Name}已经存在"
+                };
+
+                var manager =
+                    new GeneralTreeManagerWithReferenceType<Region2, string>(repository, config);
+
+                //Act
+                await manager.CreateAsync(new Region2
+                {
+                    Name = "beijing"
+                });
+                uowManager.Current.SaveChanges();
+
+                //Assert
+                var exception = await Record.ExceptionAsync(async () => await manager.CreateAsync(
+                    new Region2
+                    {
+                        Name = "beijing"
+                    }
+                ));
+
+                exception.ShouldNotBeNull();
+                exception.ShouldBeOfType<UserFriendlyException>();
+                exception.Message.ShouldBe("beijing已经存在");
+
+                uow.Complete();
+            }
         }
     }
 }

@@ -7,6 +7,8 @@ namespace Abp.GeneralTree
         where TTree : class, IGeneralTree<TTree, TPrimaryKey>
     {
         Func<IGeneralTree<TTree, TPrimaryKey>, string> ExceptionMessageFactory { get; set; }
+
+        string Hyphen { get; set; }
     }
 
     public interface IGeneralTreeConfigurationWithReferenceType<TTree, TPrimaryKey>
@@ -14,5 +16,7 @@ namespace Abp.GeneralTree
         where TTree : class, IGeneralTreeWithReferenceType<TTree, TPrimaryKey>
     {
         Func<IGeneralTreeWithReferenceType<TTree, TPrimaryKey>, string> ExceptionMessageFactory { get; set; }
+
+        string Hyphen { get; set; }
     }
 }

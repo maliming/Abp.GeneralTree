@@ -10,6 +10,8 @@ namespace Abp.GeneralTree
 
         Task BulkCreateAsync(TTree tree);
 
+        Task FillUpAsync(TTree tree);
+
         Task UpdateAsync(TTree tree);
 
         Task MoveAsync(TPrimaryKey id, TPrimaryKey parentId);

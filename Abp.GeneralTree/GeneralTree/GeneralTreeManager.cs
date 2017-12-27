@@ -39,6 +39,13 @@ namespace Abp.GeneralTree
         }
 
         [UnitOfWork]
+        public async Task FillUpAsync(TTree tree)
+        {
+            //Traverse Tree
+            TraverseTree(await GenerateTree(tree), tree.Children);
+        }
+
+        [UnitOfWork]
         public virtual async Task UpdateAsync(TTree tree)
         {
             CheckSameName(tree);

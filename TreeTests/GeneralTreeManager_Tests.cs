@@ -499,5 +499,72 @@ namespace TreeTests
                 uow.Complete();
             }
         }
+
+        [Fact]
+        public async Task FillUp_Test()
+        {
+            //Act
+            var beijing = new Region
+            {
+                Name = "beijing"
+            };
+
+            var xicheng = new Region
+            {
+                Name = "xicheng",
+                ParentId = beijing.Id
+            };
+
+            var dongcheng = new Region
+            {
+                Name = "dongcheng",
+                ParentId = beijing.Id
+            };
+
+            var balizhuang = new Region
+            {
+                Name = "balizhuang",
+                ParentId = dongcheng.Id
+            };
+            dongcheng.Children = new List<Region>
+            {
+                balizhuang
+            };
+            
+            beijing.Children = new List<Region>
+            {
+                xicheng,
+                dongcheng
+            };
+
+            var uowManager = LocalIocManager.Resolve<IUnitOfWorkManager>();
+            using (var uow = uowManager.Begin())
+            {
+                await _generalRegionTreeManager.FillUpAsync(beijing);
+                uow.Complete();
+            }
+
+            //Assert
+            beijing.FullName.ShouldBe("beijing");
+            beijing.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1));
+            beijing.Level.ShouldBe(1);
+            beijing.ParentId.ShouldBeNull();
+            beijing.Children.Count.ShouldBe(2);
+
+            xicheng.FullName.ShouldBe("beijing-xicheng");
+            xicheng.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1, 1));
+            xicheng.Level.ShouldBe(beijing.Level + 1);
+            xicheng.ParentId.ShouldBe(beijing.Id);
+
+            dongcheng.FullName.ShouldBe("beijing-dongcheng");
+            dongcheng.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1, 2));
+            dongcheng.Level.ShouldBe(beijing.Level + 1);
+            dongcheng.ParentId.ShouldBe(beijing.Id);
+
+            balizhuang.FullName.ShouldBe("beijing-dongcheng-balizhuang");
+            balizhuang.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1, 2, 1));
+            balizhuang.Level.ShouldBe(dongcheng.Level + 1);
+            balizhuang.ParentId.ShouldBe(dongcheng.Id);
+        }
     }
 }

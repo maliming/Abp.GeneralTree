@@ -5,8 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Abp" Version="3.2.5" />
-    <PackageReference Include="Abp.EntityFrameworkCore" Version="3.2.5" />
+    <PackageReference Include="Abp" Version="2.3.0" />
+    <PackageReference Include="Abp.EntityFrameworkCore" Version="2.3.0" />
   </ItemGroup>
 
   <ItemGroup>

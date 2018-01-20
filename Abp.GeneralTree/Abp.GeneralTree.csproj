@@ -4,14 +4,15 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Version>2.2.3</Version>
+    <Version>2.2.4</Version>
     <PackageProjectUrl>https://github.com/maliming/Abp.GeneralTree</PackageProjectUrl>
     <Authors>maliming</Authors>
     <Company>maliming</Company>
-    <PackageReleaseNotes>Add an extension to transform a collection into a tree entity</PackageReleaseNotes>
+    <PackageReleaseNotes>Add an extension to transform a collection into a tree entity.
+Support for child ToTree.</PackageReleaseNotes>
     <Description>Abp.GeneralTree Based on the idea of Organizations in abp module-zero, we did a general management of the entity tree structure.</Description>
-    <AssemblyVersion>2.2.3.0</AssemblyVersion>
-    <FileVersion>2.2.3.0</FileVersion>
+    <AssemblyVersion>2.2.4.0</AssemblyVersion>
+    <FileVersion>2.2.4.0</FileVersion>
     <PackageTags>abp,generaltree</PackageTags>
     <RepositoryUrl>https://github.com/maliming/Abp.GeneralTree</RepositoryUrl>
     <RepositoryType />

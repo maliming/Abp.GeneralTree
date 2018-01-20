@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Abp.GeneralTree
 {
@@ -16,6 +14,10 @@ namespace Abp.GeneralTree
             treeDic.Where(x => x.Value.ParentId.HasValue).Select(x => x.Value).ForEach(x =>
             {
                 // ReSharper disable once PossibleInvalidOperationException
+                if (!treeDic.ContainsKey(x.ParentId.Value))
+                {
+                    return;
+                }
                 var parent = treeDic[x.ParentId.Value];
                 if (parent.Children == null)
                 {
@@ -24,7 +26,13 @@ namespace Abp.GeneralTree
                 parent.Children.Add(x);
             });
 
-            return treeDic.Values.Where(x => x.ParentId == null);
+            if (treeDic.Values.Any(x => x.ParentId == null))
+            {
+                return treeDic.Values.Where(x => x.ParentId == null);
+            }
+
+            return treeDic.Values.Where(x =>
+                x.ParentId != null && !treeDic.Values.Select(q => q.Id).Contains(x.ParentId.Value));
         }
 
         public static IEnumerable<TTree> ToTreeWithReferenceType<TTree, TPrimaryKey>(this IEnumerable<TTree> tree)
@@ -35,15 +43,25 @@ namespace Abp.GeneralTree
 
             treeDic.Where(x => x.Value.ParentId != null).Select(x => x.Value).ForEach(x =>
             {
-                // ReSharper disable once PossibleInvalidOperationException
+                if (!treeDic.ContainsKey(x.ParentId))
+                {
+                    return;
+                }
                 var parent = treeDic[x.ParentId];
-                if (parent.Children == null) {
+                if (parent.Children == null)
+                {
                     parent.Children = new List<TTree>();
                 }
                 parent.Children.Add(x);
             });
 
-            return treeDic.Values.Where(x => x.ParentId == null);
+            if (treeDic.Values.Any(x => x.ParentId == null))
+            {
+                return treeDic.Values.Where(x => x.ParentId == null);
+            }
+
+            return treeDic.Values.Where(x =>
+                x.ParentId != null && !treeDic.Values.Select(q => q.Id).Contains(x.ParentId));
         }
     }
 }

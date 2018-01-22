@@ -41,8 +41,86 @@ namespace TreeTests
         public ICollection<Regin2> Children { get; set; }
     }
 
+    internal class ReginDto : IGeneralTreeDto<ReginDto, long>
+    {
+        public string Name { get; set; }
+        public long Id { get; set; }
+
+        public long? ParentId { get; set; }
+
+        public ICollection<ReginDto> Children { get; set; }
+    }
+
+    internal class Regin2Dto : IGeneralTreeDtoWithReferenceType<Regin2Dto, string>
+    {
+        public string Name { get; set; }
+        public string Id { get; set; }
+
+        public string ParentId { get; set; }
+
+        public ICollection<Regin2Dto> Children { get; set; }
+    }
+
     public class GeneralTreeExtensions_Tests : TreeTestBase
     {
+        [Fact]
+        public void ToTree_Children_Test()
+        {
+            var regions = new List<Regin>
+            {
+                new Regin
+                {
+                    Id = 1,
+                    Name = "北京",
+                    ParentId = 8888
+                },
+                new Regin
+                {
+                    Id = 2,
+                    Name = "东城区",
+                    ParentId = 1
+                },
+                new Regin
+                {
+                    Id = 3,
+                    Name = "西城区",
+                    ParentId = 1
+                },
+                new Regin
+                {
+                    Id = 4,
+                    Name = "河北",
+                    ParentId = 9999
+                },
+                new Regin
+                {
+                    Id = 5,
+                    Name = "石家庄",
+                    ParentId = 4
+                },
+                new Regin
+                {
+                    Id = 6,
+                    Name = "承德",
+                    ParentId = 4
+                },
+                new Regin
+                {
+                    Id = 7,
+                    Name = "双桥区",
+                    ParentId = 6
+                }
+            };
+
+            var tree = regions.ToTree<Regin, long>().ToList();
+
+            tree.ShouldNotBeNull();
+            tree.Count.ShouldBe(2);
+            tree.First().Children.Count.ShouldBe(2);
+            tree.Last().Children.Count.ShouldBe(2);
+            tree.Last().Children.Last().Children.Count.ShouldBe(1);
+        }
+
         [Fact]
         public void ToTree_Test()
         {
@@ -100,55 +178,55 @@ namespace TreeTests
         }
 
         [Fact]
-        public void ToTree_Children_Test()
+        public void ToTree_WithReferenceType_Children_Test()
         {
-            var regions = new List<Regin>
+            var regions = new List<Regin2>
             {
-                new Regin
+                new Regin2
                 {
-                    Id = 1,
+                    Id = "1",
                     Name = "北京",
-                    ParentId = 8888
+                    ParentId = "8888"
                 },
-                new Regin
+                new Regin2
                 {
-                    Id = 2,
+                    Id = "2",
                     Name = "东城区",
-                    ParentId = 1
+                    ParentId = "1"
                 },
-                new Regin
+                new Regin2
                 {
-                    Id = 3,
+                    Id = "3",
                     Name = "西城区",
-                    ParentId = 1
+                    ParentId = "1"
                 },
-                new Regin
+                new Regin2
                 {
-                    Id = 4,
+                    Id = "4",
                     Name = "河北",
-                    ParentId = 9999
+                    ParentId = "9999"
                 },
-                new Regin
+                new Regin2
                 {
-                    Id = 5,
+                    Id = "5",
                     Name = "石家庄",
-                    ParentId = 4
+                    ParentId = "4"
                 },
-                new Regin
+                new Regin2
                 {
-                    Id = 6,
+                    Id = "6",
                     Name = "承德",
-                    ParentId = 4
+                    ParentId = "4"
                 },
-                new Regin
+                new Regin2
                 {
-                    Id = 7,
+                    Id = "7",
                     Name = "双桥区",
-                    ParentId = 6
+                    ParentId = "6"
                 }
             };
 
-            var tree = regions.ToTree<Regin, long>().ToList();
+            var tree = regions.ToTreeWithReferenceType<Regin2, string>().ToList();
 
             tree.ShouldNotBeNull();
             tree.Count.ShouldBe(2);
@@ -214,47 +292,161 @@ namespace TreeTests
         }
 
         [Fact]
-        public void ToTree_WithReferenceType_Children_Test()
+        public void ToTreeDto_Children_Test()
         {
-            var regions = new List<Regin2>
+            var regions = new List<ReginDto>
             {
-                new Regin2
+                new ReginDto
+                {
+                    Id = 1,
+                    Name = "北京",
+                    ParentId = 8888
+                },
+                new ReginDto
+                {
+                    Id = 2,
+                    Name = "东城区",
+                    ParentId = 1
+                },
+                new ReginDto
+                {
+                    Id = 3,
+                    Name = "西城区",
+                    ParentId = 1
+                },
+                new ReginDto
+                {
+                    Id = 4,
+                    Name = "河北",
+                    ParentId = 9999
+                },
+                new ReginDto
+                {
+                    Id = 5,
+                    Name = "石家庄",
+                    ParentId = 4
+                },
+                new ReginDto
+                {
+                    Id = 6,
+                    Name = "承德",
+                    ParentId = 4
+                },
+                new ReginDto
+                {
+                    Id = 7,
+                    Name = "双桥区",
+                    ParentId = 6
+                }
+            };
+
+            var tree = regions.ToTreeDto<ReginDto, long>().ToList();
+
+            tree.ShouldNotBeNull();
+            tree.Count.ShouldBe(2);
+            tree.First().Children.Count.ShouldBe(2);
+            tree.Last().Children.Count.ShouldBe(2);
+            tree.Last().Children.Last().Children.Count.ShouldBe(1);
+        }
+
+        [Fact]
+        public void ToTreeDto_Test()
+        {
+            var regions = new List<ReginDto>
+            {
+                new ReginDto
+                {
+                    Id = 1,
+                    Name = "北京"
+                },
+                new ReginDto
+                {
+                    Id = 2,
+                    Name = "东城区",
+                    ParentId = 1
+                },
+                new ReginDto
+                {
+                    Id = 3,
+                    Name = "西城区",
+                    ParentId = 1
+                },
+                new ReginDto
+                {
+                    Id = 4,
+                    Name = "河北"
+                },
+                new ReginDto
+                {
+                    Id = 5,
+                    Name = "石家庄",
+                    ParentId = 4
+                },
+                new ReginDto
+                {
+                    Id = 6,
+                    Name = "承德",
+                    ParentId = 4
+                },
+                new ReginDto
+                {
+                    Id = 7,
+                    Name = "双桥区",
+                    ParentId = 6
+                }
+            };
+
+            var tree = regions.ToTreeDto<ReginDto, long>().ToList();
+
+            tree.ShouldNotBeNull();
+            tree.Count.ShouldBe(2);
+            tree.First().Children.Count.ShouldBe(2);
+            tree.Last().Children.Count.ShouldBe(2);
+            tree.Last().Children.Last().Children.Count.ShouldBe(1);
+        }
+
+        [Fact]
+        public void ToTreeDto_WithReferenceType_Children_Test()
+        {
+            var regions = new List<Regin2Dto>
+            {
+                new Regin2Dto
                 {
                     Id = "1",
                     Name = "北京",
                     ParentId = "8888"
                 },
-                new Regin2
+                new Regin2Dto
                 {
                     Id = "2",
                     Name = "东城区",
                     ParentId = "1"
                 },
-                new Regin2
+                new Regin2Dto
                 {
                     Id = "3",
                     Name = "西城区",
                     ParentId = "1"
                 },
-                new Regin2
+                new Regin2Dto
                 {
                     Id = "4",
                     Name = "河北",
                     ParentId = "9999"
                 },
-                new Regin2
+                new Regin2Dto
                 {
                     Id = "5",
                     Name = "石家庄",
                     ParentId = "4"
                 },
-                new Regin2
+                new Regin2Dto
                 {
                     Id = "6",
                     Name = "承德",
                     ParentId = "4"
                 },
-                new Regin2
+                new Regin2Dto
                 {
                     Id = "7",
                     Name = "双桥区",
@@ -262,7 +454,63 @@ namespace TreeTests
                 }
             };
 
-            var tree = regions.ToTreeWithReferenceType<Regin2, string>().ToList();
+            var tree = regions.ToTreeDtoWithReferenceType<Regin2Dto, string>().ToList();
+
+            tree.ShouldNotBeNull();
+            tree.Count.ShouldBe(2);
+            tree.First().Children.Count.ShouldBe(2);
+            tree.Last().Children.Count.ShouldBe(2);
+            tree.Last().Children.Last().Children.Count.ShouldBe(1);
+        }
+
+        [Fact]
+        public void ToTreeDto_WithReferenceType_Test()
+        {
+            var regions = new List<Regin2Dto>
+            {
+                new Regin2Dto
+                {
+                    Id = "1",
+                    Name = "北京"
+                },
+                new Regin2Dto
+                {
+                    Id = "2",
+                    Name = "东城区",
+                    ParentId = "1"
+                },
+                new Regin2Dto
+                {
+                    Id = "3",
+                    Name = "西城区",
+                    ParentId = "1"
+                },
+                new Regin2Dto
+                {
+                    Id = "4",
+                    Name = "河北"
+                },
+                new Regin2Dto
+                {
+                    Id = "5",
+                    Name = "石家庄",
+                    ParentId = "4"
+                },
+                new Regin2Dto
+                {
+                    Id = "6",
+                    Name = "承德",
+                    ParentId = "4"
+                },
+                new Regin2Dto
+                {
+                    Id = "7",
+                    Name = "双桥区",
+                    ParentId = "6"
+                }
+            };
+
+            var tree = regions.ToTreeDtoWithReferenceType<Regin2Dto, string>().ToList();
 
             tree.ShouldNotBeNull();
             tree.Count.ShouldBe(2);

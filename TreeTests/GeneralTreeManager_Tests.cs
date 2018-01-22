@@ -169,26 +169,6 @@ namespace TreeTests
         }
 
         [Fact]
-        public async Task Create_Test()
-        {
-            //Act
-            var beijing = new Region
-            {
-                Name = "beijing"
-            };
-            await _generalRegionTreeManager.CreateAsync(beijing);
-
-            //Assert
-            var xc = GetRegion("beijing");
-            xc.ShouldNotBeNull();
-            xc.Name.ShouldBe("beijing");
-            xc.FullName.ShouldBe("beijing");
-            xc.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1));
-            xc.Level.ShouldBe(1);
-            xc.ParentId.ShouldBeNull();
-        }
-
-        [Fact]
         public async Task Create_Children_Test()
         {
             //Act
@@ -254,6 +234,26 @@ namespace TreeTests
         }
 
         [Fact]
+        public async Task Create_Test()
+        {
+            //Act
+            var beijing = new Region
+            {
+                Name = "beijing"
+            };
+            await _generalRegionTreeManager.CreateAsync(beijing);
+
+            //Assert
+            var xc = GetRegion("beijing");
+            xc.ShouldNotBeNull();
+            xc.Name.ShouldBe("beijing");
+            xc.FullName.ShouldBe("beijing");
+            xc.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1));
+            xc.Level.ShouldBe(1);
+            xc.ParentId.ShouldBeNull();
+        }
+
+        [Fact]
         public async Task Delete_Test()
         {
             //Act
@@ -279,6 +279,155 @@ namespace TreeTests
 
             var cdsq = GetRegion("shaungqiao");
             cdsq.ShouldBeNull();
+        }
+
+        [Fact]
+        public async Task ExceptionMessageFactory_Test()
+        {
+            var uowManager = LocalIocManager.Resolve<IUnitOfWorkManager>();
+
+            using (var uow = uowManager.Begin())
+            {
+                var repository = LocalIocManager.Resolve<IRepository<Region, long>>();
+                var config = new GeneralTreeConfiguration<Region, long>
+                {
+                    ExceptionMessageFactory =
+                        tree => $"{tree.Name}已经存在"
+                };
+
+                var manager =
+                    new GeneralTreeManager<Region, long>(repository, config);
+
+                //Act
+                await manager.CreateAsync(new Region
+                {
+                    Name = "beijing"
+                });
+                uowManager.Current.SaveChanges();
+
+                //Assert
+                var exception = await Record.ExceptionAsync(async () => await manager.CreateAsync(
+                    new Region
+                    {
+                        Name = "beijing"
+                    }
+                ));
+
+                exception.ShouldNotBeNull();
+                exception.ShouldBeOfType<UserFriendlyException>();
+                exception.Message.ShouldBe("beijing已经存在");
+
+                uow.Complete();
+            }
+        }
+
+        [Fact]
+        public async Task FillUp_Test()
+        {
+            //Act
+            var beijing = new Region
+            {
+                Name = "beijing"
+            };
+
+            var xicheng = new Region
+            {
+                Name = "xicheng",
+                ParentId = beijing.Id
+            };
+
+            var dongcheng = new Region
+            {
+                Name = "dongcheng",
+                ParentId = beijing.Id
+            };
+
+            var balizhuang = new Region
+            {
+                Name = "balizhuang",
+                ParentId = dongcheng.Id
+            };
+            dongcheng.Children = new List<Region>
+            {
+                balizhuang
+            };
+
+            beijing.Children = new List<Region>
+            {
+                xicheng,
+                dongcheng
+            };
+
+            var uowManager = LocalIocManager.Resolve<IUnitOfWorkManager>();
+            using (var uow = uowManager.Begin())
+            {
+                await _generalRegionTreeManager.FillUpAsync(beijing);
+                uow.Complete();
+            }
+
+            //Assert
+            beijing.FullName.ShouldBe("beijing");
+            beijing.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1));
+            beijing.Level.ShouldBe(1);
+            beijing.ParentId.ShouldBeNull();
+            beijing.Children.Count.ShouldBe(2);
+
+            xicheng.FullName.ShouldBe("beijing-xicheng");
+            xicheng.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1, 1));
+            xicheng.Level.ShouldBe(beijing.Level + 1);
+            xicheng.ParentId.ShouldBe(beijing.Id);
+
+            dongcheng.FullName.ShouldBe("beijing-dongcheng");
+            dongcheng.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1, 2));
+            dongcheng.Level.ShouldBe(beijing.Level + 1);
+            dongcheng.ParentId.ShouldBe(beijing.Id);
+
+            balizhuang.FullName.ShouldBe("beijing-dongcheng-balizhuang");
+            balizhuang.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1, 2, 1));
+            balizhuang.Level.ShouldBe(dongcheng.Level + 1);
+            balizhuang.ParentId.ShouldBe(dongcheng.Id);
+        }
+
+        [Fact]
+        public async Task FullName_Hyphen_Test()
+        {
+            var uowManager = LocalIocManager.Resolve<IUnitOfWorkManager>();
+
+            using (var uow = uowManager.Begin())
+            {
+                var repository = LocalIocManager.Resolve<IRepository<Region, long>>();
+                var config = new GeneralTreeConfiguration<Region, long>
+                {
+                    Hyphen = "->"
+                };
+
+                var manager =
+                    new GeneralTreeManager<Region, long>(repository, config);
+
+                //Act
+                var beijing = new Region
+                {
+                    Name = "beijing"
+                };
+                await manager.CreateAsync(beijing);
+                uowManager.Current.SaveChanges();
+
+                var xicheng = new Region
+                {
+                    Name = "xicheng",
+                    ParentId = beijing.Id
+                };
+                await manager.CreateAsync(xicheng);
+                uowManager.Current.SaveChanges();
+
+                //Assert
+                var xc = GetRegion("xicheng");
+                xc.ShouldNotBeNull();
+                xc.Name.ShouldBe("xicheng");
+                xc.FullName.ShouldBe("beijing->xicheng");
+
+                uow.Complete();
+            }
         }
 
         [Fact]
@@ -416,155 +565,6 @@ namespace TreeTests
                 newbeijing.Name.ShouldBe("newbeijing");
                 newbeijing.FullName.ShouldBe("newbeijing");
             });
-        }
-
-        [Fact]
-        public async Task FullName_Hyphen_Test()
-        {
-            var uowManager = LocalIocManager.Resolve<IUnitOfWorkManager>();
-
-            using (var uow = uowManager.Begin())
-            {
-                var repository = LocalIocManager.Resolve<IRepository<Region, long>>();
-                var config = new GeneralTreeConfiguration<Region, long>
-                {
-                    Hyphen = "->"
-                };
-
-                var manager =
-                    new GeneralTreeManager<Region, long>(repository, config);
-
-                //Act
-                var beijing = new Region
-                {
-                    Name = "beijing"
-                };
-                await manager.CreateAsync(beijing);
-                uowManager.Current.SaveChanges();
-
-                var xicheng = new Region
-                {
-                    Name = "xicheng",
-                    ParentId = beijing.Id
-                };
-                await manager.CreateAsync(xicheng);
-                uowManager.Current.SaveChanges();
-
-                //Assert
-                var xc = GetRegion("xicheng");
-                xc.ShouldNotBeNull();
-                xc.Name.ShouldBe("xicheng");
-                xc.FullName.ShouldBe("beijing->xicheng");
-
-                uow.Complete();
-            }
-        }
-
-        [Fact]
-        public async Task ExceptionMessageFactory_Test()
-        {
-            var uowManager = LocalIocManager.Resolve<IUnitOfWorkManager>();
-
-            using (var uow = uowManager.Begin())
-            {
-                var repository = LocalIocManager.Resolve<IRepository<Region, long>>();
-                var config = new GeneralTreeConfiguration<Region, long>
-                {
-                    ExceptionMessageFactory =
-                        tree => $"{tree.Name}已经存在"
-                };
-
-                var manager =
-                    new GeneralTreeManager<Region, long>(repository, config);
-
-                //Act
-                await manager.CreateAsync(new Region
-                {
-                    Name = "beijing"
-                });
-                uowManager.Current.SaveChanges();
-
-                //Assert
-                var exception = await Record.ExceptionAsync(async () => await manager.CreateAsync(
-                    new Region
-                    {
-                        Name = "beijing"
-                    }
-                ));
-
-                exception.ShouldNotBeNull();
-                exception.ShouldBeOfType<UserFriendlyException>();
-                exception.Message.ShouldBe("beijing已经存在");
-
-                uow.Complete();
-            }
-        }
-
-        [Fact]
-        public async Task FillUp_Test()
-        {
-            //Act
-            var beijing = new Region
-            {
-                Name = "beijing"
-            };
-
-            var xicheng = new Region
-            {
-                Name = "xicheng",
-                ParentId = beijing.Id
-            };
-
-            var dongcheng = new Region
-            {
-                Name = "dongcheng",
-                ParentId = beijing.Id
-            };
-
-            var balizhuang = new Region
-            {
-                Name = "balizhuang",
-                ParentId = dongcheng.Id
-            };
-            dongcheng.Children = new List<Region>
-            {
-                balizhuang
-            };
-            
-            beijing.Children = new List<Region>
-            {
-                xicheng,
-                dongcheng
-            };
-
-            var uowManager = LocalIocManager.Resolve<IUnitOfWorkManager>();
-            using (var uow = uowManager.Begin())
-            {
-                await _generalRegionTreeManager.FillUpAsync(beijing);
-                uow.Complete();
-            }
-
-            //Assert
-            beijing.FullName.ShouldBe("beijing");
-            beijing.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1));
-            beijing.Level.ShouldBe(1);
-            beijing.ParentId.ShouldBeNull();
-            beijing.Children.Count.ShouldBe(2);
-
-            xicheng.FullName.ShouldBe("beijing-xicheng");
-            xicheng.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1, 1));
-            xicheng.Level.ShouldBe(beijing.Level + 1);
-            xicheng.ParentId.ShouldBe(beijing.Id);
-
-            dongcheng.FullName.ShouldBe("beijing-dongcheng");
-            dongcheng.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1, 2));
-            dongcheng.Level.ShouldBe(beijing.Level + 1);
-            dongcheng.ParentId.ShouldBe(beijing.Id);
-
-            balizhuang.FullName.ShouldBe("beijing-dongcheng-balizhuang");
-            balizhuang.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1, 2, 1));
-            balizhuang.Level.ShouldBe(dongcheng.Level + 1);
-            balizhuang.ParentId.ShouldBe(dongcheng.Id);
         }
     }
 }

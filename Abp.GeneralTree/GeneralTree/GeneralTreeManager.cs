@@ -46,11 +46,10 @@ namespace Abp.GeneralTree
         }
 
         [UnitOfWork]
-        public virtual async Task UpdateAsync(TTree tree)
+        public virtual async Task UpdateAsync(TTree tree, Action<TTree> childrenAction = null)
         {
             CheckSameName(tree);
 
-            var children = await GetChildrenAsync(tree.Id, true);
             var oldFullName = tree.FullName;
 
             if (tree.ParentId.HasValue)
@@ -65,15 +64,18 @@ namespace Abp.GeneralTree
                 tree.FullName = tree.Name;
             }
 
+            var children = await GetChildrenAsync(tree.Id, true);
             foreach (var child in children)
             {
                 child.FullName = GeneralTreeCodeGenerate.MergeFullName(tree.FullName,
                     GeneralTreeCodeGenerate.RemoveParentCode(child.FullName, oldFullName));
+
+                childrenAction?.Invoke(child);
             }
         }
 
         [UnitOfWork]
-        public virtual async Task MoveAsync(TPrimaryKey id, TPrimaryKey? parentId)
+        public virtual async Task MoveAsync(TPrimaryKey id, TPrimaryKey? parentId, Action<TTree> childrenAction = null)
         {
             var tree = await _generalTreeRepository.GetAsync(id);
             if (tree.ParentId.Equals(parentId))
@@ -104,6 +106,8 @@ namespace Abp.GeneralTree
                 child.FullName = GeneralTreeCodeGenerate.MergeFullName(tree.FullName,
                     GeneralTreeCodeGenerate.RemoveParentCode(child.FullName, oldFullName));
                 child.Level = child.Code.Split('.').Length;
+
+                childrenAction?.Invoke(child);
             }
         }
 

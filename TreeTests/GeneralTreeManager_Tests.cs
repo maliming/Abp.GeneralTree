@@ -431,6 +431,31 @@ namespace TreeTests
         }
 
         [Fact]
+        public async Task Move_ChildrenAction_Test()
+        {
+            //Act
+            var beijing = await CreateRegion("beijing");
+            await CreateRegion("dongcheng", beijing.Id);
+            await CreateRegion("xicheng", beijing.Id);
+
+            var hebei = await CreateRegion("hebei");
+            await CreateRegion("shijiazhuang", hebei.Id);
+            var chengde = await CreateRegion("chengde", hebei.Id);
+
+            await CreateRegion("shaungqiao", chengde.Id);
+            await CreateRegion("shaungluan", chengde.Id);
+
+            var beijingLastChild = GetRegion("xicheng");
+            beijingLastChild.ShouldNotBeNull();
+            await _generalRegionTreeManager.MoveAsync(chengde.Id, beijing.Id, x => { x.MyCustomData = x.Code; });
+
+            //Assert
+            var shaungqiao = GetRegion("shaungqiao");
+            shaungqiao.ShouldNotBeNull();
+            shaungqiao.MyCustomData.ShouldBe(shaungqiao.Code);
+        }
+
+        [Fact]
         public async Task Move_Test()
         {
             //Act
@@ -456,6 +481,47 @@ namespace TreeTests
             cd.ParentId.ShouldBe(beijing.Id);
             cd.Level.ShouldBe(beijing.Level + 1);
             cd.Code.ShouldBe(GeneralTreeCodeGenerate.GetNextCode(beijingLastChild.Code));
+        }
+
+        [Fact]
+        public async Task Update_ChildrenAction_Test()
+        {
+            //Arrange
+            await UsingDbContext(async context =>
+            {
+                context.Region.Add(new Region
+                {
+                    Name = "beijing",
+                    FullName = "beijing",
+                    Code = "00001",
+                    Level = 1,
+                    MyCustomData = "beijing"
+                });
+                await context.SaveChangesAsync();
+
+                context.Region.Add(new Region
+                {
+                    Name = "xicheng",
+                    FullName = "beijing-xicheng",
+                    Code = "00001.00001",
+                    Level = 2,
+                    ParentId = 1
+                });
+                await context.SaveChangesAsync();
+
+                //Act
+                var beijing = context.Region.First(x => x.Name == "beijing");
+                beijing.Name = "newbeijing";
+                await _generalRegionTreeManager.UpdateAsync(beijing, x => { x.MyCustomData = x.Code; });
+                await context.SaveChangesAsync();
+            });
+
+            UsingDbContext(context =>
+            {
+                //Assert
+                var xicheng = context.Region.First(x => x.Name == "xicheng");
+                xicheng.MyCustomData.ShouldBe("00001.00001");
+            });
         }
 
         [Fact]

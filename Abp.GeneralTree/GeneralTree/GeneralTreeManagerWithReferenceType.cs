@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Abp.Domain.Repositories;
@@ -46,7 +47,7 @@ namespace Abp.GeneralTree
         }
 
         [UnitOfWork]
-        public virtual async Task UpdateAsync(TTree tree)
+        public virtual async Task UpdateAsync(TTree tree, Action<TTree> childrenAction = null)
         {
             CheckSameName(tree);
 
@@ -69,11 +70,13 @@ namespace Abp.GeneralTree
             {
                 child.FullName = GeneralTreeCodeGenerate.MergeFullName(tree.FullName,
                     GeneralTreeCodeGenerate.RemoveParentCode(child.FullName, oldFullName));
+
+                childrenAction?.Invoke(child);
             }
         }
 
         [UnitOfWork]
-        public virtual async Task MoveAsync(TPrimaryKey id, TPrimaryKey parentId)
+        public virtual async Task MoveAsync(TPrimaryKey id, TPrimaryKey parentId, Action<TTree> childrenAction = null)
         {
             var tree = await _generalTreeRepository.GetAsync(id);
             if (tree.ParentId.Equals(parentId))
@@ -104,6 +107,8 @@ namespace Abp.GeneralTree
                 child.FullName = GeneralTreeCodeGenerate.MergeFullName(tree.FullName,
                     GeneralTreeCodeGenerate.RemoveParentCode(child.FullName, oldFullName));
                 child.Level = child.Code.Split('.').Length;
+
+                childrenAction?.Invoke(child);
             }
         }
 

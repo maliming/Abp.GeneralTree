@@ -6,6 +6,7 @@ namespace TreeApplication
 {
     public class Region : Entity<long>, IGeneralTree<Region, long>
     {
+        public virtual string MyCustomData { get; set; }
         public virtual string Name { get; set; }
 
         public virtual string FullName { get; set; }

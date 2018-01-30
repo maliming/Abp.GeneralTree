@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Abp.GeneralTree
@@ -9,9 +10,11 @@ namespace Abp.GeneralTree
     {
         Task CreateAsync(TTree tree);
 
-        Task BulkCreateAsync(TTree tree);
+        Task BulkCreateAsync(TTree tree, Action<TTree> childrenAction = null);
 
-        Task FillUpAsync(TTree tree);
+        Task CreateChildrenAsync(TTree parent, ICollection<TTree> children, Action<TTree> childrenAction = null);
+
+        Task FillUpAsync(TTree tree, Action<TTree> childrenAction = null);
 
         Task UpdateAsync(TTree tree, Action<TTree> childrenAction = null);
 

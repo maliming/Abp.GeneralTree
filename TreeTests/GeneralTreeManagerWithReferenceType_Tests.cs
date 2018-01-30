@@ -212,6 +212,62 @@ namespace TreeTests
         }
 
         [Fact]
+        public async Task Create_Children_Memory_Test()
+        {
+            var uowManager = LocalIocManager.Resolve<IUnitOfWorkManager>();
+
+            using (var uow = uowManager.Begin())
+            {
+                //Act
+                var beijing = new Region2
+                {
+                    Name = "beijing"
+                };
+                await _generalRegion2TreeManager.CreateAsync(beijing);
+                await uowManager.Current.SaveChangesAsync();
+
+                var xicheng = new Region2
+                {
+                    Name = "xicheng",
+                    ParentId = beijing.Id
+                };
+
+                var dongcheng = new Region2
+                {
+                    Name = "dongcheng",
+                    ParentId = beijing.Id
+                };
+
+                await _generalRegion2TreeManager.CreateChildrenAsync(beijing, new List<Region2>
+                {
+                    xicheng,
+                    dongcheng
+                });
+
+                await uowManager.Current.SaveChangesAsync();
+
+                //Assert
+                var xc = GetRegion("xicheng");
+                xc.ShouldNotBeNull();
+                xc.Name.ShouldBe("xicheng");
+                xc.FullName.ShouldBe("beijing-xicheng");
+                xc.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1, 1));
+                xc.Level.ShouldBe(beijing.Level + 1);
+                xc.ParentId.ShouldBe(beijing.Id);
+
+                var dc = GetRegion("dongcheng");
+                dc.ShouldNotBeNull();
+                dc.Name.ShouldBe("dongcheng");
+                dc.FullName.ShouldBe("beijing-dongcheng");
+                dc.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1, 2));
+                dc.Level.ShouldBe(beijing.Level + 1);
+                dc.ParentId.ShouldBe(beijing.Id);
+
+                uow.Complete();
+            }
+        }
+
+        [Fact]
         public async Task Create_Should_Not_With_Same_Name_Test()
         {
             //Act

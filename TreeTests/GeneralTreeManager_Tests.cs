@@ -211,6 +211,52 @@ namespace TreeTests
         }
 
         [Fact]
+        public async Task Create_Children_Memory_Test()
+        {
+            //Act
+            var beijing = new Region
+            {
+                Name = "beijing"
+            };
+            await _generalRegionTreeManager.CreateAsync(beijing);
+
+            var xicheng = new Region
+            {
+                Name = "xicheng",
+                ParentId = beijing.Id
+            };
+
+            var dongcheng = new Region
+            {
+                Name = "dongcheng",
+                ParentId = beijing.Id
+            };
+
+            await _generalRegionTreeManager.CreateChildrenAsync(beijing, new List<Region>
+            {
+                xicheng,
+                dongcheng
+            });
+
+            //Assert
+            var xc = GetRegion("xicheng");
+            xc.ShouldNotBeNull();
+            xc.Name.ShouldBe("xicheng");
+            xc.FullName.ShouldBe("beijing-xicheng");
+            xc.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1, 1));
+            xc.Level.ShouldBe(beijing.Level + 1);
+            xc.ParentId.ShouldBe(beijing.Id);
+
+            var dc = GetRegion("dongcheng");
+            dc.ShouldNotBeNull();
+            dc.Name.ShouldBe("dongcheng");
+            dc.FullName.ShouldBe("beijing-dongcheng");
+            dc.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1, 2));
+            dc.Level.ShouldBe(beijing.Level + 1);
+            dc.ParentId.ShouldBe(beijing.Id);
+        }
+
+        [Fact]
         public async Task Create_Should_Not_With_Same_Name_Test()
         {
             //Act

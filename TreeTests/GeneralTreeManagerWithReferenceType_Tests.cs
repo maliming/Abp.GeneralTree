@@ -212,6 +212,54 @@ namespace TreeTests
         }
 
         [Fact]
+        public async Task Create_Children_Memory_Test()
+        {
+            //Act
+            var beijing = new Region2
+            {
+                Name = "beijing"
+            };
+            await _generalRegion2TreeManager.CreateAsync(beijing);
+
+            var bj = GetRegion("beijing");
+
+            var xicheng = new Region2
+            {
+                Name = "xicheng",
+                ParentId = beijing.Id
+            };
+
+            var dongcheng = new Region2
+            {
+                Name = "dongcheng",
+                ParentId = beijing.Id
+            };
+
+            await _generalRegion2TreeManager.CreateChildrenAsync(bj, new List<Region2>
+            {
+                xicheng,
+                dongcheng
+            });
+
+            //Assert
+            var xc = GetRegion("xicheng");
+            xc.ShouldNotBeNull();
+            xc.Name.ShouldBe("xicheng");
+            xc.FullName.ShouldBe("beijing-xicheng");
+            xc.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1, 1));
+            xc.Level.ShouldBe(beijing.Level + 1);
+            xc.ParentId.ShouldBe(beijing.Id);
+
+            var dc = GetRegion("dongcheng");
+            dc.ShouldNotBeNull();
+            dc.Name.ShouldBe("dongcheng");
+            dc.FullName.ShouldBe("beijing-dongcheng");
+            dc.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1, 2));
+            dc.Level.ShouldBe(beijing.Level + 1);
+            dc.ParentId.ShouldBe(beijing.Id);
+        }
+
+        [Fact]
         public async Task Create_Should_Not_With_Same_Name_Test()
         {
             //Act
@@ -359,12 +407,7 @@ namespace TreeTests
                 dongcheng
             };
 
-            var uowManager = LocalIocManager.Resolve<IUnitOfWorkManager>();
-            using (var uow = uowManager.Begin())
-            {
-                await _generalRegion2TreeManager.FillUpAsync(beijing);
-                uow.Complete();
-            }
+            await _generalRegion2TreeManager.FillUpAsync(beijing);
 
             //Assert
             beijing.FullName.ShouldBe("beijing");
@@ -509,20 +552,17 @@ namespace TreeTests
                     ParentId = "1"
                 });
                 await context.SaveChangesAsync();
-
-                //Act
-                var beijing = context.Region2.First(x => x.Name == "beijing");
-                beijing.Name = "newbeijing";
-                await _generalRegion2TreeManager.UpdateAsync(beijing, x => { x.MyCustomData = x.Code; });
-                await context.SaveChangesAsync();
             });
 
-            UsingDbContext(context =>
-            {
-                //Assert
-                var xicheng = context.Region2.First(x => x.Name == "xicheng");
-                xicheng.MyCustomData.ShouldBe("00001.00001");
-            });
+            //Act
+            var beijing = GetRegion("beijing");
+            beijing.Name = "newbeijing";
+            await _generalRegion2TreeManager.UpdateAsync(beijing, x => { x.MyCustomData = x.Code; });
+
+            //Assert
+            var xicheng = GetRegion("xicheng");
+            xicheng.FullName.ShouldBe("newbeijing-xicheng");
+            xicheng.MyCustomData.ShouldBe("00001.00001");
         }
 
         [Fact]
@@ -551,20 +591,16 @@ namespace TreeTests
                     ParentId = region.Id
                 });
                 await context.SaveChangesAsync();
-
-                //Act
-                var beijing = context.Region2.First(x => x.Name == "beijing");
-                beijing.Name = "newbeijing";
-                await _generalRegion2TreeManager.UpdateAsync(beijing);
-                await context.SaveChangesAsync();
             });
 
-            UsingDbContext(context =>
-            {
-                //Assert
-                var xicheng = context.Region2.First(x => x.Name == "xicheng");
-                xicheng.FullName.ShouldBe("newbeijing-xicheng");
-            });
+            //Act
+            var beijing = GetRegion("beijing");
+            beijing.Name = "newbeijing";
+            await _generalRegion2TreeManager.UpdateAsync(beijing);
+
+            //Assert
+            var xicheng = GetRegion("xicheng");
+            xicheng.FullName.ShouldBe("newbeijing-xicheng");
         }
 
         [Fact]
@@ -597,15 +633,11 @@ namespace TreeTests
                 var xicheng = context.Region2.First(x => x.Name == "xicheng");
                 xicheng.Name = "newxicheng";
                 await _generalRegion2TreeManager.UpdateAsync(xicheng);
-                await context.SaveChangesAsync();
             });
 
-            UsingDbContext(context =>
-            {
-                //Assert
-                var xicheng = context.Region2.First(x => x.Name == "newxicheng");
-                xicheng.FullName.ShouldBe("beijing-newxicheng");
-            });
+            //Assert
+            var newxicheng = GetRegion("newxicheng");
+            newxicheng.FullName.ShouldBe("beijing-newxicheng");
         }
 
         [Fact]

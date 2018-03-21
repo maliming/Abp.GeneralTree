@@ -7,11 +7,6 @@ namespace TreeApplication
 {
     public class Region2 : Entity<string>, IGeneralTreeWithReferenceType<Region2, string>
     {
-        public Region2()
-        {
-            Id = Guid.NewGuid().ToString();
-        }
-
         public virtual string MyCustomData { get; set; }
 
         public virtual string Name { get; set; }

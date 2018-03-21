@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Abp.Collections.Extensions;
 using Abp.Domain.Repositories;
 using Abp.Domain.Uow;
 using Abp.UI;
@@ -30,19 +31,37 @@ namespace Abp.GeneralTree
         }
 
         [UnitOfWork]
-        public virtual async Task BulkCreateAsync(TTree tree)
+        public virtual async Task BulkCreateAsync(TTree tree, Action<TTree> childrenAction = null)
         {
             //Traverse Tree
-            TraverseTree(await GenerateTree(tree), tree.Children);
+            TraverseTree(await GenerateTree(tree), tree.Children, childrenAction);
 
             await _generalTreeRepository.InsertAsync(tree);
         }
 
         [UnitOfWork]
-        public async Task FillUpAsync(TTree tree)
+        public virtual async Task CreateChildrenAsync(TTree parent, ICollection<TTree> children, Action<TTree> childrenAction = null)
+        {
+            if (parent.Children.IsNullOrEmpty())
+            {
+                parent.Children = children;
+            }
+            else
+            {
+                children.ForEach(x => parent.Children.Add(x));
+            }
+
+            //Traverse Tree
+            TraverseTree(parent, children, childrenAction);
+
+            await _generalTreeRepository.UpdateAsync(parent);
+        }
+
+        [UnitOfWork]
+        public virtual async Task FillUpAsync(TTree tree, Action<TTree> childrenAction = null)
         {
             //Traverse Tree
-            TraverseTree(await GenerateTree(tree), tree.Children);
+            TraverseTree(await GenerateTree(tree), tree.Children, childrenAction);
         }
 
         [UnitOfWork]
@@ -145,7 +164,7 @@ namespace Abp.GeneralTree
             return tree;
         }
 
-        private void TraverseTree(TTree parent, ICollection<TTree> children)
+        private void TraverseTree(TTree parent, ICollection<TTree> children, Action<TTree> childrenAction = null)
         {
             if (children == null || !children.Any())
             {
@@ -166,9 +185,11 @@ namespace Abp.GeneralTree
 
                 tree.Level = tree.Code.Split('.').Length;
                 tree.FullName = parent.FullName + _generalTreeConfiguration.Hyphen + tree.Name;
+
+                childrenAction?.Invoke(tree);
             });
 
-            children.ForEach(tree => { TraverseTree(tree, tree.Children); });
+            children.ForEach(tree => { TraverseTree(tree, tree.Children, childrenAction); });
         }
 
         /// <summary>

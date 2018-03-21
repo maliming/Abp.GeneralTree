@@ -668,5 +668,48 @@ namespace TreeTests
                 newbeijing.FullName.ShouldBe("newbeijing");
             });
         }
+
+        [Fact]
+        public async Task CheckSameNameExpression_Test()
+        {
+            var uowManager = LocalIocManager.Resolve<IUnitOfWorkManager>();
+
+            using (var uow = uowManager.Begin()) {
+                var repository = LocalIocManager.Resolve<IRepository<Region2, string>>();
+                var config = new GeneralTreeConfigurationWithReferenceType<Region2, string>
+                {
+                    CheckSameNameExpression = (regionThis, regionCheck) =>
+                        regionThis.SomeForeignKey == regionCheck.SomeForeignKey
+                };
+
+                var manager =
+                    new GeneralTreeManagerWithReferenceType<Region2, string>(repository, config);
+
+                //Act
+                await manager.CreateAsync(new Region2
+                {
+                    Name = "beijing",
+                    SomeForeignKey = 1
+                });
+                uowManager.Current.SaveChanges();
+
+                //Act
+                await manager.CreateAsync(new Region2
+                {
+                    Name = "beijing",
+                    SomeForeignKey = 2
+                });
+                uowManager.Current.SaveChanges();
+
+                //Assert
+                var beijing1 = repository.FirstOrDefault(x => x.Name == "beijing" && x.SomeForeignKey == 1);
+                beijing1.ShouldNotBeNull();
+
+                var beijing2 = repository.FirstOrDefault(x => x.Name == "beijing" && x.SomeForeignKey == 2);
+                beijing2.ShouldNotBeNull();
+
+                uow.Complete();
+            }
+        }
     }
 }

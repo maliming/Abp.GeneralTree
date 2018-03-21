@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Abp.Collections.Extensions;
+using Abp.Linq.Extensions;
 using Abp.Domain.Repositories;
 using Abp.Domain.Uow;
 using Abp.UI;
@@ -257,7 +258,9 @@ namespace Abp.GeneralTree
         /// <returns></returns>
         private void CheckSameName(TTree tree)
         {
-            if (_generalTreeRepository.GetAll().Where(x => x.ParentId == tree.ParentId && x.Id != tree.Id)
+            if (_generalTreeRepository.GetAll().Where(x => x.ParentId == tree.ParentId && x.Id != tree.Id).WhereIf(
+                    _generalTreeConfiguration.CheckSameNameExpression != null,
+                    x => _generalTreeConfiguration.CheckSameNameExpression(x, tree))
                 .Any(x => x.Name == tree.Name))
             {
                 throw new UserFriendlyException(_generalTreeConfiguration.ExceptionMessageFactory.Invoke(tree));

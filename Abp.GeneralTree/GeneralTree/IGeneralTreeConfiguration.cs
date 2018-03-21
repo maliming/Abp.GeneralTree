@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq.Expressions;
 
 namespace Abp.GeneralTree
 {
@@ -6,6 +7,8 @@ namespace Abp.GeneralTree
         where TPrimaryKey : struct
         where TTree : class, IGeneralTree<TTree, TPrimaryKey>
     {
+        Func<TTree, TTree, bool> CheckSameNameExpression { get; set; }
+
         Func<IGeneralTree<TTree, TPrimaryKey>, string> ExceptionMessageFactory { get; set; }
 
         string Hyphen { get; set; }
@@ -15,6 +18,8 @@ namespace Abp.GeneralTree
         where TPrimaryKey : class
         where TTree : class, IGeneralTreeWithReferenceType<TTree, TPrimaryKey>
     {
+        Func<TTree, TTree, bool> CheckSameNameExpression { get; set; }
+
         Func<IGeneralTreeWithReferenceType<TTree, TPrimaryKey>, string> ExceptionMessageFactory { get; set; }
 
         string Hyphen { get; set; }

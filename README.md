@@ -1,10 +1,10 @@
- 
- <img src="https://raw.githubusercontent.com/maliming/Abp.GeneralTree/master/GeneralTree.png" width="200" height="200" /> 
+<img src="https://raw.githubusercontent.com/maliming/Abp.GeneralTree/master/GeneralTree.png" width="200" height="200" /> 
  
 # Abp GeneralTree
 
 [![Build status](https://ci.appveyor.com/api/projects/status/ftg4ttr825gnmabl?svg=true)](https://ci.appveyor.com/project/maliming/Abp-Generaltree)
 [![NuGet](https://img.shields.io/nuget/vpre/abp.GeneralTree.svg)](https://www.nuget.org/packages/Abp.GeneralTree)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fmaliming%2FAbp.GeneralTree.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fmaliming%2FAbp.GeneralTree?ref=badge_shield)
 
 Based on the idea of [Organizations](http://www.aspnetboilerplate.com/Pages/Documents/Zero/Organization-Units) in [abp module-zero](https://github.com/aspnetboilerplate/module-zero), we did a general management of the entity tree structure.
 
@@ -226,3 +226,7 @@ public override void PreInitialize()
 ```
 
 More Code Features Please visit: [Abp Zero Organization Unit](https://aspnetboilerplate.com/Pages/Documents/Zero/Organization-Units#ou-code)
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fmaliming%2FAbp.GeneralTree.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fmaliming%2FAbp.GeneralTree?ref=badge_large)

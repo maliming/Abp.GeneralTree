@@ -525,6 +525,34 @@ namespace TreeTests
         }
 
         [Fact]
+        public async Task Move_Root_Parent_Test()
+        {
+            //Act
+            var beijing = await CreateRegion("beijing");
+            await CreateRegion("dongcheng", beijing.Id);
+            await CreateRegion("xicheng", beijing.Id);
+
+            var hebei = await CreateRegion("hebei");
+            await CreateRegion("shijiazhuang", hebei.Id);
+            var chengde = await CreateRegion("chengde", hebei.Id);
+
+            await CreateRegion("shaungqiao", chengde.Id);
+            await CreateRegion("shaungluan", chengde.Id);
+
+            var beijingLastChild = GetRegion("xicheng");
+            beijingLastChild.ShouldNotBeNull();
+            await _generalRegionTreeManager.MoveAsync(chengde.Id, null);
+
+            //Assert
+            var cd = GetRegion(chengde.Name);
+            cd.ShouldNotBeNull();
+            cd.FullName.ShouldBe(chengde.Name);
+            cd.ParentId.ShouldBe(null);
+            cd.Level.ShouldBe(1);
+            cd.Code.ShouldBe(GeneralTreeCodeGenerate.GetNextCode(hebei.Code));
+        }
+
+        [Fact]
         public async Task Update_ChildrenAction_Test()
         {
             await UsingDbContext(async context =>

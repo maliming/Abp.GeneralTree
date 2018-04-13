@@ -18,11 +18,13 @@ namespace Abp.GeneralTree
                 {
                     return;
                 }
+
                 var parent = treeDic[x.ParentId.Value];
                 if (parent.Children == null)
                 {
                     parent.Children = new List<TTree>();
                 }
+
                 parent.Children.Add(x);
             });
 
@@ -47,11 +49,13 @@ namespace Abp.GeneralTree
                 {
                     return;
                 }
+
                 var parent = treeDic[x.ParentId];
                 if (parent.Children == null)
                 {
                     parent.Children = new List<TTree>();
                 }
+
                 parent.Children.Add(x);
             });
 
@@ -77,11 +81,13 @@ namespace Abp.GeneralTree
                 {
                     return;
                 }
+
                 var parent = treeDic[x.ParentId.Value];
                 if (parent.Children == null)
                 {
                     parent.Children = new List<TTree>();
                 }
+
                 parent.Children.Add(x);
             });
 
@@ -107,11 +113,13 @@ namespace Abp.GeneralTree
                 {
                     return;
                 }
+
                 var parent = treeDic[x.ParentId];
                 if (parent.Children == null)
                 {
                     parent.Children = new List<TTree>();
                 }
+
                 parent.Children.Add(x);
             });
 

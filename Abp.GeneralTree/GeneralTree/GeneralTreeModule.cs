@@ -1,5 +1,5 @@
-﻿using System.Reflection;
-using Abp.Dependency;
+﻿using Abp.Dependency;
+using Abp.GeneralTree.GeneralTree;
 using Abp.Modules;
 
 namespace Abp.GeneralTree
@@ -9,6 +9,12 @@ namespace Abp.GeneralTree
     {
         public override void PreInitialize()
         {
+            IocManager.Register(typeof(IGeneralTreeCodeGenerateConfiguration),
+                typeof(GeneralTreeCodeGenerateConfiguration));
+
+            IocManager.Register(typeof(IGeneralTreeCodeGenerate), typeof(GeneralTreeCodeGenerate),
+                DependencyLifeStyle.Transient);
+
             IocManager.Register(typeof(IGeneralTreeManager<,>), typeof(GeneralTreeManager<,>),
                 DependencyLifeStyle.Transient);
 
@@ -24,7 +30,7 @@ namespace Abp.GeneralTree
 
         public override void Initialize()
         {
-            IocManager.RegisterAssemblyByConvention(Assembly.GetExecutingAssembly());
+            IocManager.RegisterAssemblyByConvention(typeof(GeneralTreeModule).Assembly);
         }
     }
 }

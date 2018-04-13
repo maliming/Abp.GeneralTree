@@ -1,9 +1,17 @@
 ﻿using Abp.Configuration.Startup;
+using Abp.GeneralTree.GeneralTree;
 
 namespace Abp.GeneralTree
 {
     public static class GeneralTreeConfigurationExtensions
     {
+        public static IGeneralTreeCodeGenerateConfiguration CodeGenerate(
+            this IModuleConfigurations moduleConfigurations)
+        {
+            return moduleConfigurations.AbpConfiguration
+                .Get<IGeneralTreeCodeGenerateConfiguration>();
+        }
+
         public static IGeneralTreeConfiguration<TTree, TPrimaryKey> GeneralTree<TTree, TPrimaryKey>(
             this IModuleConfigurations moduleConfigurations)
             where TPrimaryKey : struct

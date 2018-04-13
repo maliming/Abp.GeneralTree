@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Abp.Collections.Extensions;
-using Abp.Linq.Extensions;
 using Abp.Domain.Repositories;
 using Abp.Domain.Uow;
+using Abp.GeneralTree.GeneralTree;
+using Abp.Linq.Extensions;
 using Abp.UI;
 
 namespace Abp.GeneralTree
@@ -16,12 +17,15 @@ namespace Abp.GeneralTree
         where TPrimaryKey : class
         where TTree : class, IGeneralTreeWithReferenceType<TTree, TPrimaryKey>
     {
+        private readonly IGeneralTreeCodeGenerate _generalTreeCodeGenerate;
         private readonly IGeneralTreeConfigurationWithReferenceType<TTree, TPrimaryKey> _generalTreeConfiguration;
         private readonly IRepository<TTree, TPrimaryKey> _generalTreeRepository;
 
-        public GeneralTreeManagerWithReferenceType(IRepository<TTree, TPrimaryKey> generalTreeRepository,
+        public GeneralTreeManagerWithReferenceType(IGeneralTreeCodeGenerate generalTreeCodeGenerate,
+            IRepository<TTree, TPrimaryKey> generalTreeRepository,
             IGeneralTreeConfigurationWithReferenceType<TTree, TPrimaryKey> generalTreeConfiguration)
         {
+            _generalTreeCodeGenerate = generalTreeCodeGenerate;
             _generalTreeRepository = generalTreeRepository;
             _generalTreeConfiguration = generalTreeConfiguration;
         }
@@ -42,9 +46,10 @@ namespace Abp.GeneralTree
         }
 
         [UnitOfWork]
-        public virtual async Task CreateChildrenAsync(TTree parent, ICollection<TTree> children, Action<TTree> childrenAction = null)
+        public virtual async Task CreateChildrenAsync(TTree parent, ICollection<TTree> children,
+            Action<TTree> childrenAction = null)
         {
-            if (parent.Children.IsNullOrEmpty()) 
+            if (parent.Children.IsNullOrEmpty())
             {
                 parent.Children = children;
             }
@@ -88,8 +93,8 @@ namespace Abp.GeneralTree
 
             foreach (var child in children)
             {
-                child.FullName = GeneralTreeCodeGenerate.MergeFullName(tree.FullName,
-                    GeneralTreeCodeGenerate.RemoveParentCode(child.FullName, oldFullName));
+                child.FullName = _generalTreeCodeGenerate.MergeFullName(tree.FullName,
+                    _generalTreeCodeGenerate.RemoveParentCode(child.FullName, oldFullName));
 
                 childrenAction?.Invoke(child);
             }
@@ -122,10 +127,10 @@ namespace Abp.GeneralTree
             //Update Children Codes and FullName
             foreach (var child in children)
             {
-                child.Code = GeneralTreeCodeGenerate.MergeCode(tree.Code,
-                    GeneralTreeCodeGenerate.RemoveParentCode(child.Code, oldCode));
-                child.FullName = GeneralTreeCodeGenerate.MergeFullName(tree.FullName,
-                    GeneralTreeCodeGenerate.RemoveParentCode(child.FullName, oldFullName));
+                child.Code = _generalTreeCodeGenerate.MergeCode(tree.Code,
+                    _generalTreeCodeGenerate.RemoveParentCode(child.Code, oldCode));
+                child.FullName = _generalTreeCodeGenerate.MergeFullName(tree.FullName,
+                    _generalTreeCodeGenerate.RemoveParentCode(child.FullName, oldFullName));
                 child.Level = child.Code.Split('.').Length;
 
                 childrenAction?.Invoke(child);
@@ -182,8 +187,8 @@ namespace Abp.GeneralTree
                 }
 
                 tree.Code = index == 0
-                    ? GeneralTreeCodeGenerate.MergeCode(parent.Code, GeneralTreeCodeGenerate.CreateCode(1))
-                    : GeneralTreeCodeGenerate.GetNextCode(children.ElementAt(index - 1).Code);
+                    ? _generalTreeCodeGenerate.MergeCode(parent.Code, _generalTreeCodeGenerate.CreateCode(1))
+                    : _generalTreeCodeGenerate.GetNextCode(children.ElementAt(index - 1).Code);
 
                 tree.Level = tree.Code.Split('.').Length;
                 tree.FullName = parent.FullName + _generalTreeConfiguration.Hyphen + tree.Name;
@@ -195,7 +200,7 @@ namespace Abp.GeneralTree
         }
 
         /// <summary>
-        ///     Get next child code
+        /// Get next child code
         /// </summary>
         /// <param name="parentId"></param>
         /// <returns></returns>
@@ -209,16 +214,16 @@ namespace Abp.GeneralTree
             if (lastChild != null)
             {
                 //Get the next code
-                return GeneralTreeCodeGenerate.GetNextCode(lastChild.Code);
+                return _generalTreeCodeGenerate.GetNextCode(lastChild.Code);
             }
 
             //Generate a code
             var parentCode = parentId != null ? await GetCodeAsync(parentId) : null;
-            return GeneralTreeCodeGenerate.MergeCode(parentCode, GeneralTreeCodeGenerate.CreateCode(1));
+            return _generalTreeCodeGenerate.MergeCode(parentCode, _generalTreeCodeGenerate.CreateCode(1));
         }
 
         /// <summary>
-        ///     Get Code
+        /// Get Code
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -228,7 +233,7 @@ namespace Abp.GeneralTree
         }
 
         /// <summary>
-        ///     Get all children, can be recursively
+        /// Get all children, can be recursively
         /// </summary>
         /// <param name="parentId"></param>
         /// <param name="recursive"></param>
@@ -252,7 +257,7 @@ namespace Abp.GeneralTree
         }
 
         /// <summary>
-        ///     Check if there are same names at the same tree level
+        /// Check if there are same names at the same tree level
         /// </summary>
         /// <param name="tree"></param>
         /// <returns></returns>
@@ -268,7 +273,7 @@ namespace Abp.GeneralTree
         }
 
         /// <summary>
-        ///     Get Child FullName Async
+        /// Get Child FullName Async
         /// </summary>
         /// <param name="parentId"></param>
         /// <param name="childFullName"></param>

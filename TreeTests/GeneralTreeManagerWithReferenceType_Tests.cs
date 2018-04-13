@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Abp.Domain.Repositories;
 using Abp.Domain.Uow;
 using Abp.GeneralTree;
+using Abp.GeneralTree.GeneralTree;
 using Abp.UI;
 using Shouldly;
 using TreeApplication;
@@ -15,10 +16,14 @@ namespace TreeTests
     {
         public GeneralTreeManagerWithReferenceType_Tests()
         {
-            _generalRegion2TreeManager = Resolve<IGeneralTreeManagerWithReferenceType<Region2, string>>();
+            _generalRegion2TreeManager =
+                LocalIocManager.Resolve<IGeneralTreeManagerWithReferenceType<Region2, string>>();
+            _generalTreeCodeGenerate = LocalIocManager.Resolve<IGeneralTreeCodeGenerate>();
         }
 
         private readonly IGeneralTreeManagerWithReferenceType<Region2, string> _generalRegion2TreeManager;
+
+        private readonly IGeneralTreeCodeGenerate _generalTreeCodeGenerate;
 
         private Region2 GetRegion(string name)
         {
@@ -93,7 +98,7 @@ namespace TreeTests
             chengde.ShouldNotBeNull();
             chengde.Name.ShouldBe("chengde");
             chengde.FullName.ShouldBe("hebei-chengde");
-            chengde.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1, 2));
+            chengde.Code.ShouldBe(_generalTreeCodeGenerate.CreateCode(1, 2));
             chengde.Level.ShouldBe(2);
             chengde.ParentId.ShouldBe(hebei.Id);
 
@@ -101,7 +106,7 @@ namespace TreeTests
             shuangqiaoqu.ShouldNotBeNull();
             shuangqiaoqu.Name.ShouldBe("shuangqiaoqu");
             shuangqiaoqu.FullName.ShouldBe("hebei-chengde-shuangqiaoqu");
-            shuangqiaoqu.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1, 2, 1));
+            shuangqiaoqu.Code.ShouldBe(_generalTreeCodeGenerate.CreateCode(1, 2, 1));
             shuangqiaoqu.Level.ShouldBe(chengde.Level + 1);
             shuangqiaoqu.ParentId.ShouldBe(chengde.Id);
 
@@ -109,7 +114,7 @@ namespace TreeTests
             shuangluanqu.ShouldNotBeNull();
             shuangluanqu.Name.ShouldBe("shuangluanqu");
             shuangluanqu.FullName.ShouldBe("hebei-chengde-shuangluanqu");
-            shuangluanqu.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1, 2, 2));
+            shuangluanqu.Code.ShouldBe(_generalTreeCodeGenerate.CreateCode(1, 2, 2));
             shuangluanqu.Level.ShouldBe(chengde.Level + 1);
             shuangluanqu.ParentId.ShouldBe(chengde.Id);
         }
@@ -148,7 +153,7 @@ namespace TreeTests
             bj.ShouldNotBeNull();
             bj.Name.ShouldBe("beijing");
             bj.FullName.ShouldBe("beijing");
-            bj.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1));
+            bj.Code.ShouldBe(_generalTreeCodeGenerate.CreateCode(1));
             bj.Level.ShouldBe(1);
             bj.ParentId.ShouldBeNull();
 
@@ -156,7 +161,7 @@ namespace TreeTests
             xc.ShouldNotBeNull();
             xc.Name.ShouldBe("xicheng");
             xc.FullName.ShouldBe("beijing-xicheng");
-            xc.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1, 1));
+            xc.Code.ShouldBe(_generalTreeCodeGenerate.CreateCode(1, 1));
             xc.Level.ShouldBe(beijing.Level + 1);
             xc.ParentId.ShouldBe(beijing.Id);
 
@@ -164,51 +169,55 @@ namespace TreeTests
             dc.ShouldNotBeNull();
             dc.Name.ShouldBe("dongcheng");
             dc.FullName.ShouldBe("beijing-dongcheng");
-            dc.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1, 2));
+            dc.Code.ShouldBe(_generalTreeCodeGenerate.CreateCode(1, 2));
             dc.Level.ShouldBe(beijing.Level + 1);
             dc.ParentId.ShouldBe(beijing.Id);
         }
 
         [Fact]
-        public async Task Create_Children_Test()
+        public async Task CheckSameNameExpression_Test()
         {
-            //Act
-            var beijing = new Region2
+            var uowManager = LocalIocManager.Resolve<IUnitOfWorkManager>();
+
+            using (var uow = uowManager.Begin())
             {
-                Name = "beijing"
-            };
-            await _generalRegion2TreeManager.CreateAsync(beijing);
+                var repository = LocalIocManager.Resolve<IRepository<Region2, string>>();
+                var config = new GeneralTreeConfigurationWithReferenceType<Region2, string>
+                {
+                    CheckSameNameExpression = (regionThis, regionCheck) =>
+                        regionThis.SomeForeignKey == regionCheck.SomeForeignKey
+                };
 
-            var xicheng = new Region2
-            {
-                Name = "xicheng",
-                ParentId = beijing.Id
-            };
-            await _generalRegion2TreeManager.CreateAsync(xicheng);
+                var codeGenerate = new GeneralTreeCodeGenerate(new GeneralTreeCodeGenerateConfiguration());
 
-            var dongcheng = new Region2
-            {
-                Name = "dongcheng",
-                ParentId = beijing.Id
-            };
-            await _generalRegion2TreeManager.CreateAsync(dongcheng);
+                var manager =
+                    new GeneralTreeManagerWithReferenceType<Region2, string>(codeGenerate, repository, config);
 
-            //Assert
-            var xc = GetRegion("xicheng");
-            xc.ShouldNotBeNull();
-            xc.Name.ShouldBe("xicheng");
-            xc.FullName.ShouldBe("beijing-xicheng");
-            xc.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1, 1));
-            xc.Level.ShouldBe(beijing.Level + 1);
-            xc.ParentId.ShouldBe(beijing.Id);
+                //Act
+                await manager.CreateAsync(new Region2
+                {
+                    Name = "beijing",
+                    SomeForeignKey = 1
+                });
+                uowManager.Current.SaveChanges();
 
-            var dc = GetRegion("dongcheng");
-            dc.ShouldNotBeNull();
-            dc.Name.ShouldBe("dongcheng");
-            dc.FullName.ShouldBe("beijing-dongcheng");
-            dc.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1, 2));
-            dc.Level.ShouldBe(beijing.Level + 1);
-            dc.ParentId.ShouldBe(beijing.Id);
+                //Act
+                await manager.CreateAsync(new Region2
+                {
+                    Name = "beijing",
+                    SomeForeignKey = 2
+                });
+                uowManager.Current.SaveChanges();
+
+                //Assert
+                var beijing1 = repository.FirstOrDefault(x => x.Name == "beijing" && x.SomeForeignKey == 1);
+                beijing1.ShouldNotBeNull();
+
+                var beijing2 = repository.FirstOrDefault(x => x.Name == "beijing" && x.SomeForeignKey == 2);
+                beijing2.ShouldNotBeNull();
+
+                uow.Complete();
+            }
         }
 
         [Fact]
@@ -246,7 +255,7 @@ namespace TreeTests
             xc.ShouldNotBeNull();
             xc.Name.ShouldBe("xicheng");
             xc.FullName.ShouldBe("beijing-xicheng");
-            xc.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1, 1));
+            xc.Code.ShouldBe(_generalTreeCodeGenerate.CreateCode(1, 1));
             xc.Level.ShouldBe(beijing.Level + 1);
             xc.ParentId.ShouldBe(beijing.Id);
 
@@ -254,7 +263,49 @@ namespace TreeTests
             dc.ShouldNotBeNull();
             dc.Name.ShouldBe("dongcheng");
             dc.FullName.ShouldBe("beijing-dongcheng");
-            dc.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1, 2));
+            dc.Code.ShouldBe(_generalTreeCodeGenerate.CreateCode(1, 2));
+            dc.Level.ShouldBe(beijing.Level + 1);
+            dc.ParentId.ShouldBe(beijing.Id);
+        }
+
+        [Fact]
+        public async Task Create_Children_Test()
+        {
+            //Act
+            var beijing = new Region2
+            {
+                Name = "beijing"
+            };
+            await _generalRegion2TreeManager.CreateAsync(beijing);
+
+            var xicheng = new Region2
+            {
+                Name = "xicheng",
+                ParentId = beijing.Id
+            };
+            await _generalRegion2TreeManager.CreateAsync(xicheng);
+
+            var dongcheng = new Region2
+            {
+                Name = "dongcheng",
+                ParentId = beijing.Id
+            };
+            await _generalRegion2TreeManager.CreateAsync(dongcheng);
+
+            //Assert
+            var xc = GetRegion("xicheng");
+            xc.ShouldNotBeNull();
+            xc.Name.ShouldBe("xicheng");
+            xc.FullName.ShouldBe("beijing-xicheng");
+            xc.Code.ShouldBe(_generalTreeCodeGenerate.CreateCode(1, 1));
+            xc.Level.ShouldBe(beijing.Level + 1);
+            xc.ParentId.ShouldBe(beijing.Id);
+
+            var dc = GetRegion("dongcheng");
+            dc.ShouldNotBeNull();
+            dc.Name.ShouldBe("dongcheng");
+            dc.FullName.ShouldBe("beijing-dongcheng");
+            dc.Code.ShouldBe(_generalTreeCodeGenerate.CreateCode(1, 2));
             dc.Level.ShouldBe(beijing.Level + 1);
             dc.ParentId.ShouldBe(beijing.Id);
         }
@@ -297,7 +348,7 @@ namespace TreeTests
             xc.ShouldNotBeNull();
             xc.Name.ShouldBe("beijing");
             xc.FullName.ShouldBe("beijing");
-            xc.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1));
+            xc.Code.ShouldBe(_generalTreeCodeGenerate.CreateCode(1));
             xc.Level.ShouldBe(1);
             xc.ParentId.ShouldBeNull();
         }
@@ -344,8 +395,10 @@ namespace TreeTests
                         tree => $"{tree.Name}已经存在"
                 };
 
+                var codeGenerate = new GeneralTreeCodeGenerate(new GeneralTreeCodeGenerateConfiguration());
+
                 var manager =
-                    new GeneralTreeManagerWithReferenceType<Region2, string>(repository, config);
+                    new GeneralTreeManagerWithReferenceType<Region2, string>(codeGenerate, repository, config);
 
                 //Act
                 await manager.CreateAsync(new Region2
@@ -411,23 +464,23 @@ namespace TreeTests
 
             //Assert
             beijing.FullName.ShouldBe("beijing");
-            beijing.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1));
+            beijing.Code.ShouldBe(_generalTreeCodeGenerate.CreateCode(1));
             beijing.Level.ShouldBe(1);
             beijing.ParentId.ShouldBeNull();
             beijing.Children.Count.ShouldBe(2);
 
             xicheng.FullName.ShouldBe("beijing-xicheng");
-            xicheng.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1, 1));
+            xicheng.Code.ShouldBe(_generalTreeCodeGenerate.CreateCode(1, 1));
             xicheng.Level.ShouldBe(beijing.Level + 1);
             xicheng.ParentId.ShouldBe(beijing.Id);
 
             dongcheng.FullName.ShouldBe("beijing-dongcheng");
-            dongcheng.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1, 2));
+            dongcheng.Code.ShouldBe(_generalTreeCodeGenerate.CreateCode(1, 2));
             dongcheng.Level.ShouldBe(beijing.Level + 1);
             dongcheng.ParentId.ShouldBe(beijing.Id);
 
             balizhuang.FullName.ShouldBe("beijing-dongcheng-balizhuang");
-            balizhuang.Code.ShouldBe(GeneralTreeCodeGenerate.CreateCode(1, 2, 1));
+            balizhuang.Code.ShouldBe(_generalTreeCodeGenerate.CreateCode(1, 2, 1));
             balizhuang.Level.ShouldBe(dongcheng.Level + 1);
             balizhuang.ParentId.ShouldBe(dongcheng.Id);
         }
@@ -445,8 +498,10 @@ namespace TreeTests
                     Hyphen = "->"
                 };
 
+                var codeGenerate = new GeneralTreeCodeGenerate(new GeneralTreeCodeGenerateConfiguration());
+
                 var manager =
-                    new GeneralTreeManagerWithReferenceType<Region2, string>(repository, config);
+                    new GeneralTreeManagerWithReferenceType<Region2, string>(codeGenerate, repository, config);
 
                 //Act
                 var beijing = new Region2
@@ -500,34 +555,6 @@ namespace TreeTests
         }
 
         [Fact]
-        public async Task Move_Test()
-        {
-            //Act
-            var beijing = await CreateRegion("beijing");
-            await CreateRegion("dongcheng", beijing.Id);
-            await CreateRegion("xicheng", beijing.Id);
-
-            var hebei = await CreateRegion("hebei");
-            await CreateRegion("shijiazhuang", hebei.Id);
-            var chengde = await CreateRegion("chengde", hebei.Id);
-
-            await CreateRegion("shaungqiao", chengde.Id);
-            await CreateRegion("shaungluan", chengde.Id);
-
-            var beijingLastChild = GetRegion("xicheng");
-            beijingLastChild.ShouldNotBeNull();
-            await _generalRegion2TreeManager.MoveAsync(chengde.Id, beijing.Id);
-
-            //Assert
-            var cd = GetRegion(chengde.Name);
-            cd.ShouldNotBeNull();
-            cd.FullName.ShouldBe(beijing.FullName + "-" + chengde.Name);
-            cd.ParentId.ShouldBe(beijing.Id);
-            cd.Level.ShouldBe(beijing.Level + 1);
-            cd.Code.ShouldBe(GeneralTreeCodeGenerate.GetNextCode(beijingLastChild.Code));
-        }
-
-        [Fact]
         public async Task Move_Root_Parent_Test()
         {
             //Act
@@ -552,7 +579,35 @@ namespace TreeTests
             cd.FullName.ShouldBe(chengde.Name);
             cd.ParentId.ShouldBe(null);
             cd.Level.ShouldBe(1);
-            cd.Code.ShouldBe(GeneralTreeCodeGenerate.GetNextCode(hebei.Code));
+            cd.Code.ShouldBe(_generalTreeCodeGenerate.GetNextCode(hebei.Code));
+        }
+
+        [Fact]
+        public async Task Move_Test()
+        {
+            //Act
+            var beijing = await CreateRegion("beijing");
+            await CreateRegion("dongcheng", beijing.Id);
+            await CreateRegion("xicheng", beijing.Id);
+
+            var hebei = await CreateRegion("hebei");
+            await CreateRegion("shijiazhuang", hebei.Id);
+            var chengde = await CreateRegion("chengde", hebei.Id);
+
+            await CreateRegion("shaungqiao", chengde.Id);
+            await CreateRegion("shaungluan", chengde.Id);
+
+            var beijingLastChild = GetRegion("xicheng");
+            beijingLastChild.ShouldNotBeNull();
+            await _generalRegion2TreeManager.MoveAsync(chengde.Id, beijing.Id);
+
+            //Assert
+            var cd = GetRegion(chengde.Name);
+            cd.ShouldNotBeNull();
+            cd.FullName.ShouldBe(beijing.FullName + "-" + chengde.Name);
+            cd.ParentId.ShouldBe(beijing.Id);
+            cd.Level.ShouldBe(beijing.Level + 1);
+            cd.Code.ShouldBe(_generalTreeCodeGenerate.GetNextCode(beijingLastChild.Code));
         }
 
         [Fact]
@@ -695,49 +750,6 @@ namespace TreeTests
                 newbeijing.Name.ShouldBe("newbeijing");
                 newbeijing.FullName.ShouldBe("newbeijing");
             });
-        }
-
-        [Fact]
-        public async Task CheckSameNameExpression_Test()
-        {
-            var uowManager = LocalIocManager.Resolve<IUnitOfWorkManager>();
-
-            using (var uow = uowManager.Begin()) {
-                var repository = LocalIocManager.Resolve<IRepository<Region2, string>>();
-                var config = new GeneralTreeConfigurationWithReferenceType<Region2, string>
-                {
-                    CheckSameNameExpression = (regionThis, regionCheck) =>
-                        regionThis.SomeForeignKey == regionCheck.SomeForeignKey
-                };
-
-                var manager =
-                    new GeneralTreeManagerWithReferenceType<Region2, string>(repository, config);
-
-                //Act
-                await manager.CreateAsync(new Region2
-                {
-                    Name = "beijing",
-                    SomeForeignKey = 1
-                });
-                uowManager.Current.SaveChanges();
-
-                //Act
-                await manager.CreateAsync(new Region2
-                {
-                    Name = "beijing",
-                    SomeForeignKey = 2
-                });
-                uowManager.Current.SaveChanges();
-
-                //Assert
-                var beijing1 = repository.FirstOrDefault(x => x.Name == "beijing" && x.SomeForeignKey == 1);
-                beijing1.ShouldNotBeNull();
-
-                var beijing2 = repository.FirstOrDefault(x => x.Name == "beijing" && x.SomeForeignKey == 2);
-                beijing2.ShouldNotBeNull();
-
-                uow.Complete();
-            }
         }
     }
 }

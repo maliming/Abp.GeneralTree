@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq.Expressions;
 
 namespace Abp.GeneralTree
 {
@@ -7,21 +6,13 @@ namespace Abp.GeneralTree
         where TPrimaryKey : struct
         where TTree : class, IGeneralTree<TTree, TPrimaryKey>
     {
-        public GeneralTreeConfiguration()
-        {
-            CheckSameNameExpression = null;
+        public Func<TTree, TTree, bool> CheckSameNameExpression { get; set; } = null;
 
-            ExceptionMessageFactory = tree =>
+        public Func<IGeneralTree<TTree, TPrimaryKey>, string> ExceptionMessageFactory { get; set; } =
+            tree =>
                 $"There is already an tree with name {tree.Name}. Two tree with same name can not be created in same level.";
 
-            Hyphen = "-";
-        }
-
-        public Func<TTree, TTree, bool> CheckSameNameExpression { get; set; }
-
-        public Func<IGeneralTree<TTree, TPrimaryKey>, string> ExceptionMessageFactory { get; set; }
-
-        public string Hyphen { get; set; }
+        public string Hyphen { get; set; } = "-";
     }
 
     public class
@@ -30,20 +21,12 @@ namespace Abp.GeneralTree
         where TPrimaryKey : class
         where TTree : class, IGeneralTreeWithReferenceType<TTree, TPrimaryKey>
     {
-        public GeneralTreeConfigurationWithReferenceType()
-        {
-            CheckSameNameExpression = null;
+        public Func<TTree, TTree, bool> CheckSameNameExpression { get; set; } = null;
 
-            ExceptionMessageFactory = tree =>
+        public Func<IGeneralTreeWithReferenceType<TTree, TPrimaryKey>, string> ExceptionMessageFactory { get; set; } =
+            tree =>
                 $"There is already an tree with name {tree.Name}. Two tree with same name can not be created in same level.";
 
-            Hyphen = "-";
-        }
-
-        public Func<TTree, TTree, bool> CheckSameNameExpression { get; set; }
-
-        public Func<IGeneralTreeWithReferenceType<TTree, TPrimaryKey>, string> ExceptionMessageFactory { get; set; }
-
-        public string Hyphen { get; set; }
+        public string Hyphen { get; set; } = "-";
     }
 }

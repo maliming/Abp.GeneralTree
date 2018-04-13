@@ -23,12 +23,12 @@ namespace Abp.GeneralTree
     #endregion
 
     /// <summary>
-    ///     https://github.com/morelinq/MoreLINQ/blob/master/MoreLinq/ForEach.cs
+    /// https://github.com/morelinq/MoreLINQ/blob/master/MoreLinq/ForEach.cs
     /// </summary>
     internal static class MoreEnumerable
     {
         /// <summary>
-        ///     Immediately executes the given action on each element in the source sequence.
+        /// Immediately executes the given action on each element in the source sequence.
         /// </summary>
         /// <typeparam name="T">The type of the elements in the sequence</typeparam>
         /// <param name="source">The sequence of elements</param>
@@ -39,6 +39,7 @@ namespace Abp.GeneralTree
             {
                 throw new ArgumentNullException(nameof(source));
             }
+
             if (action == null)
             {
                 throw new ArgumentNullException(nameof(action));
@@ -51,14 +52,14 @@ namespace Abp.GeneralTree
         }
 
         /// <summary>
-        ///     Immediately executes the given action on each element in the source sequence.
-        ///     Each element's index is used in the logic of the action.
+        /// Immediately executes the given action on each element in the source sequence.
+        /// Each element's index is used in the logic of the action.
         /// </summary>
         /// <typeparam name="T">The type of the elements in the sequence</typeparam>
         /// <param name="source">The sequence of elements</param>
         /// <param name="action">
-        ///     The action to execute on each element; the second parameter
-        ///     of the action represents the index of the source element.
+        /// The action to execute on each element; the second parameter
+        /// of the action represents the index of the source element.
         /// </param>
         public static void ForEach<T>(this IEnumerable<T> source, Action<T, int> action)
         {
@@ -66,6 +67,7 @@ namespace Abp.GeneralTree
             {
                 throw new ArgumentNullException(nameof(source));
             }
+
             if (action == null)
             {
                 throw new ArgumentNullException(nameof(action));

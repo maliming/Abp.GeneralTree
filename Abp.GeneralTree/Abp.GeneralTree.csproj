@@ -4,14 +4,14 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Version>2.3.0</Version>
+    <Version>2.3.1</Version>
     <PackageProjectUrl>https://github.com/maliming/Abp.GeneralTree</PackageProjectUrl>
     <Authors>maliming</Authors>
     <Company>maliming</Company>
-    <PackageReleaseNotes>CodeGenerate supports configuring Code length.</PackageReleaseNotes>
+    <PackageReleaseNotes>GeneralTreeExtensions ToTree Method Children Support Sorting.</PackageReleaseNotes>
     <Description>Abp.GeneralTree Based on the idea of Organizations in abp module-zero, we did a general management of the entity tree structure.</Description>
-    <AssemblyVersion>2.3.0.0</AssemblyVersion>
-    <FileVersion>2.3.0.0</FileVersion>
+    <AssemblyVersion>2.3.1.0</AssemblyVersion>
+    <FileVersion>2.3.1.0</FileVersion>
     <PackageTags>abp,generaltree</PackageTags>
     <RepositoryUrl>https://github.com/maliming/Abp.GeneralTree</RepositoryUrl>
     <RepositoryType />
@@ -21,7 +21,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Abp" Version="3.5.0" />
+    <PackageReference Include="Abp" Version="3.6.2" />
   </ItemGroup>
 
 </Project>

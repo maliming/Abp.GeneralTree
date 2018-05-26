@@ -178,6 +178,125 @@ namespace TreeTests
         }
 
         [Fact]
+        public void ToTreeOrderBy_Test()
+        {
+            var regions = new List<Regin>
+            {
+                new Regin
+                {
+                    Id = 1,
+                    Name = "b北京"
+                },
+                new Regin
+                {
+                    Id = 2,
+                    Name = "b东城区",
+                    ParentId = 1
+                },
+                new Regin
+                {
+                    Id = 3,
+                    Name = "a西城区",
+                    ParentId = 1
+                },
+                new Regin
+                {
+                    Id = 4,
+                    Name = "a河北"
+                },
+                new Regin
+                {
+                    Id = 5,
+                    Name = "b石家庄",
+                    ParentId = 4
+                },
+                new Regin
+                {
+                    Id = 6,
+                    Name = "a承德",
+                    ParentId = 4
+                },
+                new Regin
+                {
+                    Id = 7,
+                    Name = "b双桥区",
+                    ParentId = 6
+                },
+                new Regin
+                {
+                    Id = 8,
+                    Name = "a双滦区",
+                    ParentId = 6
+                }
+            };
+
+            var tree = regions.ToTreeOrderBy<Regin, long, string>(x => x.Name).ToList();
+
+            tree.First().Name.ShouldBe("a河北");
+            tree.First().Children.First().Name.ShouldBe("a承德");
+            tree.First().Children.First().Children.First().Name.ShouldBe("a双滦区");
+        }
+
+        [Fact]
+        public void ToTreeOrderByDescending_Test()
+        {
+            var regions = new List<Regin>
+            {
+                new Regin
+                {
+                    Id = 1,
+                    Name = "b北京"
+                },
+                new Regin
+                {
+                    Id = 2,
+                    Name = "b东城区",
+                    ParentId = 1
+                },
+                new Regin
+                {
+                    Id = 3,
+                    Name = "a西城区",
+                    ParentId = 1
+                },
+                new Regin
+                {
+                    Id = 4,
+                    Name = "a河北"
+                },
+                new Regin
+                {
+                    Id = 5,
+                    Name = "b石家庄",
+                    ParentId = 4
+                },
+                new Regin
+                {
+                    Id = 6,
+                    Name = "a承德",
+                    ParentId = 4
+                },
+                new Regin
+                {
+                    Id = 7,
+                    Name = "b双桥区",
+                    ParentId = 6
+                },
+                new Regin
+                {
+                    Id = 8,
+                    Name = "a双滦区",
+                    ParentId = 6
+                }
+            };
+
+            var tree = regions.ToTreeOrderByDescending<Regin, long, string>(x => x.Name).ToList();
+
+            tree.First().Name.ShouldBe("b北京");
+            tree.First().Children.First().Name.ShouldBe("b东城区");
+        }
+
+        [Fact]
         public void ToTree_WithReferenceType_Children_Test()
         {
             var regions = new List<Regin2>
@@ -290,6 +409,126 @@ namespace TreeTests
             tree.Last().Children.Count.ShouldBe(2);
             tree.Last().Children.Last().Children.Count.ShouldBe(1);
         }
+
+        [Fact]
+        public void ToTree_WithReferenceType_OrderBy_Test()
+        {
+            var regions = new List<Regin2>
+            {
+                new Regin2
+                {
+                    Id = "1",
+                    Name = "b北京"
+                },
+                new Regin2
+                {
+                    Id = "2",
+                    Name = "b东城区",
+                    ParentId = "1"
+                },
+                new Regin2
+                {
+                    Id = "3",
+                    Name = "a西城区",
+                    ParentId = "1"
+                },
+                new Regin2
+                {
+                    Id = "4",
+                    Name = "a河北"
+                },
+                new Regin2
+                {
+                    Id = "5",
+                    Name = "b石家庄",
+                    ParentId = "4"
+                },
+                new Regin2
+                {
+                    Id = "6",
+                    Name = "a承德",
+                    ParentId = "4"
+                },
+                new Regin2
+                {
+                    Id = "7",
+                    Name = "b双桥区",
+                    ParentId = "6"
+                },
+                new Regin2
+                {
+                    Id = "8",
+                    Name = "a双滦区",
+                    ParentId = "6"
+                }
+            };
+
+            var tree = regions.ToTreeWithReferenceTypeOrderBy<Regin2, string, string>(x => x.Name).ToList();
+
+            tree.First().Name.ShouldBe("a河北");
+            tree.First().Children.First().Name.ShouldBe("a承德");
+            tree.First().Children.First().Children.First().Name.ShouldBe("a双滦区");
+        }
+
+        [Fact]
+        public void ToTree_WithReferenceType_OrderByDescending_Test()
+        {
+            var regions = new List<Regin2>
+            {
+                new Regin2
+                {
+                    Id = "1",
+                    Name = "b北京"
+                },
+                new Regin2
+                {
+                    Id = "2",
+                    Name = "b东城区",
+                    ParentId = "1"
+                },
+                new Regin2
+                {
+                    Id = "3",
+                    Name = "a西城区",
+                    ParentId = "1"
+                },
+                new Regin2
+                {
+                    Id = "4",
+                    Name = "a河北"
+                },
+                new Regin2
+                {
+                    Id = "5",
+                    Name = "b石家庄",
+                    ParentId = "4"
+                },
+                new Regin2
+                {
+                    Id = "6",
+                    Name = "a承德",
+                    ParentId = "4"
+                },
+                new Regin2
+                {
+                    Id = "7",
+                    Name = "b双桥区",
+                    ParentId = "6"
+                },
+                new Regin2
+                {
+                    Id = "8",
+                    Name = "a双滦区",
+                    ParentId = "6"
+                }
+            };
+
+            var tree = regions.ToTreeWithReferenceTypeOrderByDescending<Regin2, string, string>(x => x.Name).ToList();
+
+            tree.First().Name.ShouldBe("b北京");
+            tree.First().Children.First().Name.ShouldBe("b东城区");
+        }
+
 
         [Fact]
         public void ToTreeDto_Children_Test()
@@ -406,6 +645,125 @@ namespace TreeTests
         }
 
         [Fact]
+        public void ToTreeDtoOrderBy_Test()
+        {
+            var regions = new List<ReginDto>
+            {
+                new ReginDto
+                {
+                    Id = 1,
+                    Name = "b北京"
+                },
+                new ReginDto
+                {
+                    Id = 2,
+                    Name = "b东城区",
+                    ParentId = 1
+                },
+                new ReginDto
+                {
+                    Id = 3,
+                    Name = "a西城区",
+                    ParentId = 1
+                },
+                new ReginDto
+                {
+                    Id = 4,
+                    Name = "a河北"
+                },
+                new ReginDto
+                {
+                    Id = 5,
+                    Name = "b石家庄",
+                    ParentId = 4
+                },
+                new ReginDto
+                {
+                    Id = 6,
+                    Name = "a承德",
+                    ParentId = 4
+                },
+                new ReginDto
+                {
+                    Id = 7,
+                    Name = "b双桥区",
+                    ParentId = 6
+                },
+                new ReginDto
+                {
+                    Id = 8,
+                    Name = "a双滦区",
+                    ParentId = 6
+                }
+            };
+
+            var tree = regions.ToTreeDtoOrderBy<ReginDto, long, string>(x => x.Name).ToList();
+
+            tree.First().Name.ShouldBe("a河北");
+            tree.First().Children.First().Name.ShouldBe("a承德");
+            tree.First().Children.First().Children.First().Name.ShouldBe("a双滦区");
+        }
+
+        [Fact]
+        public void ToTreeDtoOrderByDescending_Test()
+        {
+            var regions = new List<ReginDto>
+            {
+                new ReginDto
+                {
+                    Id = 1,
+                    Name = "b北京"
+                },
+                new ReginDto
+                {
+                    Id = 2,
+                    Name = "b东城区",
+                    ParentId = 1
+                },
+                new ReginDto
+                {
+                    Id = 3,
+                    Name = "a西城区",
+                    ParentId = 1
+                },
+                new ReginDto
+                {
+                    Id = 4,
+                    Name = "a河北"
+                },
+                new ReginDto
+                {
+                    Id = 5,
+                    Name = "b石家庄",
+                    ParentId = 4
+                },
+                new ReginDto
+                {
+                    Id = 6,
+                    Name = "a承德",
+                    ParentId = 4
+                },
+                new ReginDto
+                {
+                    Id = 7,
+                    Name = "b双桥区",
+                    ParentId = 6
+                },
+                new ReginDto
+                {
+                    Id = 8,
+                    Name = "a双滦区",
+                    ParentId = 6
+                }
+            };
+
+            var tree = regions.ToTreeDtoOrderByDescending<ReginDto, long, string>(x => x.Name).ToList();
+
+            tree.First().Name.ShouldBe("b北京");
+            tree.First().Children.First().Name.ShouldBe("b东城区");
+        }
+
+        [Fact]
         public void ToTreeDto_WithReferenceType_Children_Test()
         {
             var regions = new List<Regin2Dto>
@@ -517,6 +875,126 @@ namespace TreeTests
             tree.First().Children.Count.ShouldBe(2);
             tree.Last().Children.Count.ShouldBe(2);
             tree.Last().Children.Last().Children.Count.ShouldBe(1);
+        }
+
+        [Fact]
+        public void ToTreeWithReferenceTypeDtoOrderBy_Test()
+        {
+            var regions = new List<Regin2Dto>
+            {
+                new Regin2Dto
+                {
+                    Id = "1",
+                    Name = "b北京"
+                },
+                new Regin2Dto
+                {
+                    Id = "2",
+                    Name = "b东城区",
+                    ParentId = "1"
+                },
+                new Regin2Dto
+                {
+                    Id = "3",
+                    Name = "a西城区",
+                    ParentId = "1"
+                },
+                new Regin2Dto
+                {
+                    Id = "4",
+                    Name = "a河北"
+                },
+                new Regin2Dto
+                {
+                    Id = "5",
+                    Name = "b石家庄",
+                    ParentId = "4"
+                },
+                new Regin2Dto
+                {
+                    Id = "6",
+                    Name = "a承德",
+                    ParentId = "4"
+                },
+                new Regin2Dto
+                {
+                    Id = "7",
+                    Name = "b双桥区",
+                    ParentId = "6"
+                },
+                new Regin2Dto
+                {
+                    Id = "8",
+                    Name = "a双滦区",
+                    ParentId = "6"
+                }
+            };
+
+            var tree = regions.ToTreeDtoWithReferenceTypeOrderBy<Regin2Dto, string, string>(x => x.Name).ToList();
+
+            tree.First().Name.ShouldBe("a河北");
+            tree.First().Children.First().Name.ShouldBe("a承德");
+            tree.First().Children.First().Children.First().Name.ShouldBe("a双滦区");
+        }
+
+        [Fact]
+        public void ToTreeWithReferenceTypeDtoOrderByDescending_Test()
+        {
+            var regions = new List<Regin2Dto>
+            {
+                new Regin2Dto
+                {
+                    Id = "1",
+                    Name = "b北京"
+                },
+                new Regin2Dto
+                {
+                    Id = "2",
+                    Name = "b东城区",
+                    ParentId = "1"
+                },
+                new Regin2Dto
+                {
+                    Id = "3",
+                    Name = "a西城区",
+                    ParentId = "1"
+                },
+                new Regin2Dto
+                {
+                    Id = "4",
+                    Name = "a河北"
+                },
+                new Regin2Dto
+                {
+                    Id = "5",
+                    Name = "b石家庄",
+                    ParentId = "4"
+                },
+                new Regin2Dto
+                {
+                    Id = "6",
+                    Name = "a承德",
+                    ParentId = "4"
+                },
+                new Regin2Dto
+                {
+                    Id = "7",
+                    Name = "b双桥区",
+                    ParentId = "6"
+                },
+                new Regin2Dto
+                {
+                    Id = "8",
+                    Name = "a双滦区",
+                    ParentId = "6"
+                }
+            };
+
+            var tree = regions.ToTreeDtoWithReferenceTypeOrderByDescending<Regin2Dto, string, string>(x => x.Name)
+                .ToList();
+
+            tree.First().Name.ShouldBe("b北京");
+            tree.First().Children.First().Name.ShouldBe("b东城区");
         }
     }
 }

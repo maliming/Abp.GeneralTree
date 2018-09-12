@@ -1,17 +1,17 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Version>2.3.1</Version>
+    <Version>2.3.2</Version>
     <PackageProjectUrl>https://github.com/maliming/Abp.GeneralTree</PackageProjectUrl>
     <Authors>maliming</Authors>
     <Company>maliming</Company>
-    <PackageReleaseNotes>GeneralTreeExtensions ToTree Method Children Support Sorting.</PackageReleaseNotes>
+    <PackageReleaseNotes>update abp to 3.8.2</PackageReleaseNotes>
     <Description>Abp.GeneralTree Based on the idea of Organizations in abp module-zero, we did a general management of the entity tree structure.</Description>
-    <AssemblyVersion>2.3.1.0</AssemblyVersion>
-    <FileVersion>2.3.1.0</FileVersion>
+    <AssemblyVersion>2.3.2.0</AssemblyVersion>
+    <FileVersion>2.3.2.0</FileVersion>
     <PackageTags>abp,generaltree</PackageTags>
     <RepositoryUrl>https://github.com/maliming/Abp.GeneralTree</RepositoryUrl>
     <RepositoryType />
@@ -21,7 +21,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Abp" Version="3.6.2" />
+    <PackageReference Include="Abp" Version="3.8.2" />
   </ItemGroup>
 
 </Project>

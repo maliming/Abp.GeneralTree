@@ -6,6 +6,8 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/ftg4ttr825gnmabl?svg=true)](https://ci.appveyor.com/project/maliming/Abp-Generaltree)
 [![NuGet](https://img.shields.io/nuget/vpre/abp.GeneralTree.svg)](https://www.nuget.org/packages/Abp.GeneralTree)
 
+[GenerateTree中文文档](https://github.com/maliming/Abp.GeneralTree/blob/master/README.CN.md)
+
 Based on the idea of [Organizations](http://www.aspnetboilerplate.com/Pages/Documents/Zero/Organization-Units) in [abp module-zero](https://github.com/aspnetboilerplate/module-zero), we did a general management of the entity tree structure.
 
 Value Type ```TPrimaryKey```

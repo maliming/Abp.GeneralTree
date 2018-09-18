@@ -6,7 +6,7 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/ftg4ttr825gnmabl?svg=true)](https://ci.appveyor.com/project/maliming/Abp-Generaltree)
 [![NuGet](https://img.shields.io/nuget/vpre/abp.GeneralTree.svg)](https://www.nuget.org/packages/Abp.GeneralTree)
 
-[GenerateTree中文文档](https://github.com/maliming/Abp.GeneralTree/blob/master/README.CN.md)
+[GeneralTree中文文档](https://github.com/maliming/Abp.GeneralTree/blob/master/README.CN.md)
 
 - Based on Abp module system, perfect integration Abp framework.
 - Support for custom primary key (value type, reference type).

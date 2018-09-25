@@ -89,9 +89,6 @@ namespace Abp.GeneralTree
                 tree.FullName = tree.Name;
             }
 
-            tree.Code = await GetNextChildCodeAsync(tree.ParentId);
-            tree.Level = tree.Code.Split('.').Length;
-
             var children = await GetChildrenAsync(tree.Id, true);
             foreach (var child in children)
             {

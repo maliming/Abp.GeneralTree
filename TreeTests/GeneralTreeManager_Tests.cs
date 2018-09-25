@@ -741,6 +741,7 @@ namespace TreeTests
                 newbeijing.ShouldNotBeNull();
                 newbeijing.Name.ShouldBe("newbeijing");
                 newbeijing.FullName.ShouldBe("newbeijing");
+                newbeijing.Code.ShouldBe("00001");
             });
         }
     }

@@ -6,24 +6,22 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/ftg4ttr825gnmabl?svg=true)](https://ci.appveyor.com/project/maliming/Abp-Generaltree)
 [![NuGet](https://img.shields.io/nuget/vpre/abp.GeneralTree.svg)](https://www.nuget.org/packages/Abp.GeneralTree)
 
-[GeneralTree中文文档](https://github.com/maliming/Abp.GeneralTree/blob/master/README.CN.md)
+- 基于Abp模块系统,完美集成Abp框架.
+- 支持自定义主键(值类型，引用类型).
+- 自动分配Code,Level,FullName扩展了实体的其他属性.
+- 基于Code,Level对实体进行有效管理.
+- **适用于管理各种树结构实体，例如：区域，组织，类别，行业和具有父子实体的其他实体.**
 
-- Based on Abp module system, perfect integration Abp framework.
-- Support for custom primary key (value type, reference type).
-- Automating the assignment of Code,Level,FullName extends other attributes of the entity.
-- Efficient management of entities based on Code, Level features.
-- **Suitable for managing a variety of tree structure entities, such as: region, organization, category, industry and other entities with parent-child Entity.**
-
-## Installation
+## 安装
 
 ``` c#
 Install-Package Abp.GeneralTree
 dotnet add package Abp.GeneralTree
 ```
 
-GeneralTree provides a generic `IGeneralTree` interface, which inherits this interface, passing in generic parameter entities and primary keys (primary keys can be value types and reference types)
+GeneralTree提供一个泛型`IGeneralTree`接口,实体继承此接口,传入泛型参数实体和主键(主键可以是值类型和引用类型)
 
-Value type
+值类型
 
 ``` c#
 public interface IGeneralTree<TTree, TPrimaryKey> : IEntity<TPrimaryKey>
@@ -45,7 +43,7 @@ public interface IGeneralTree<TTree, TPrimaryKey> : IEntity<TPrimaryKey>
 }
 ```
 
-Reference type
+引用类型
 
 ``` c#
 public interface IGeneralTreeWithReferenceType<TTree, TPrimaryKey> : IEntity<TPrimaryKey>
@@ -67,7 +65,7 @@ public interface IGeneralTreeWithReferenceType<TTree, TPrimaryKey> : IEntity<TPr
 }
 ```
 
-Take the Region entity as an example:
+以Region地区实体为例:
 
 ``` c#
 public class Region : Entity<long>, IGeneralTree<Region, long>
@@ -88,49 +86,49 @@ public class Region : Entity<long>, IGeneralTree<Region, long>
 }
 ```
 
-Entities implement properties under generic interfaces, and GeneralTree automatically maintains these properties (FullName, Code, Level, ParentId...)
+实体实现泛型接口下的属性,GeneralTree会自动维护这些属性(FullName,Code,Level,ParentId...)
 
-To create, update, move, delete, etc., use `IGeneralTreeManager<TTree, TPrimaryKey>`, and the generic parameters of the interface are the same as above.
+创建,更新,移动,删除等操作请使用`IGeneralTreeManager<TTree, TPrimaryKey>`, 接口的泛型参数同上.
 
-## Use
+## 使用
 
-We first initialize some regional information.
+我们首先初始化一些地区信息.[自动获取中华人民共和国商务部的最新中华人民共和国行政区划代码数据](https://github.com/maliming/RegionTree)
 
 ``` c#
 var beijing = new Region
 {
-      Name = "beijing"
+      Name = "北京"
 };
 await _generalRegionTreeManager.CreateAsync(beijing);
 ```
 
-At this time, the entity information of beijing is as follows:
+此时beijing的实体信息如下:
 
 Id|Name|FullName|Code|Level|ParentId
 :--:|:--:|:--:|:--:|:--:|:--:
-1|beijing|beijing|00001|1|NULL
+1|北京|北京|00001|1|NULL
 
-GeneralTree automatically maintains the modified properties. It provides the basis for efficient management later.
+GeneralTree自动维护了修改属性.对后面的高效管理提供基础.
 
-Add some areas again.
+再补充一些地区
 
 ``` c#
 var beijing = new Region
 {
-      Name = "beijing"
+      Name = "北京"
 };
 await _generalRegionTreeManager.CreateAsync(beijing);
 await CurrentUnitOfWork.SaveChangesAsync();
 
 var dongcheng = new Region
 {
-      Name = "dongcheng",
+      Name = "东城区",
       ParentId = beijing.Id
 };
 
 var xicheng = new Region
 {
-      Name = "xicheng",
+      Name = "西城区",
       ParentId = beijing.Id
 };
 await _generalRegionTreeManager.CreateAsync(dongcheng);
@@ -138,14 +136,14 @@ await _generalRegionTreeManager.CreateAsync(xicheng);
 
 var hebei = new Region
 {
-      Name = "hebei"
+      Name = "河北"
 };
 await _generalRegionTreeManager.CreateAsync(hebei);
 await CurrentUnitOfWork.SaveChangesAsync();
 
 var shijianzhuang = new Region
 {
-      Name = "shijianzhuang",
+      Name = "石家庄",
       ParentId = hebei.Id
 };
 await _generalRegionTreeManager.CreateAsync(shijianzhuang);
@@ -153,45 +151,45 @@ await CurrentUnitOfWork.SaveChangesAsync();
 
 var changanqu = new Region
 {
-      Name = "changanqu",
+      Name = "长安区",
       ParentId = shijianzhuang.Id
 };
 var qiaoxiqu = new Region
 {
-      Name = "qiaoxiqu",
+      Name = "桥东区",
       ParentId = shijianzhuang.Id
 };
 await _generalRegionTreeManager.CreateAsync(changanqu);
 await _generalRegionTreeManager.CreateAsync(qiaoxiqu);
 ```
 
-The results are as follows:
+结果如下:
 
 Id|Name|FullName|Code|Level|ParentId
 :--:|:--:|:--:|:--:|:--:|:--:
-1|beijing|beijing|00001|1|NULL
-2|dongcheng|beijing-dongcheng|00001.00001|2|1
-3|xicheng|beijing-xicheng|00001.00002|2|1
-4|hebei|hebei|00002|1|NULL
-5|shijianzhuang|hebei-shijianzhuang|00002.00001|2|4
-6|changanqu|hebei-shijianzhuang-changanqu|00002.00001.00001|3|5
-7|qiaoxiqu|hebei-shijianzhuang-qiaoxiqu|00002.00001.00002|3|5
+1|北京|北京|00001|1|NULL
+2|东城区|北京-东城区|00001.00001|2|1
+3|西城区|北京-西城区|00001.00002|2|1
+4|河北|河北|00002|1|NULL
+5|石家庄|河北-石家庄|00002.00001|2|4
+6|长安区|河北-石家庄-长安区|00002.00001.00001|3|5
+7|桥东区|河北-石家庄-桥东区|00002.00001.00002|3|5
 
-The above operation has a batch method `BulkCreateAsync`
+上面的操作有批量的方法`BulkCreateAsync`
 
 ```c#
 var beijing = new Region
 {
-      Name = "beijing",
+      Name = "北京",
       Children = new List<Region>
       {
             new Region
             {
-                  Name = "dongcheng"
+                  Name = "东城区"
             },
             new Region
             {
-                  Name = "dongcheng"
+                  Name = "东城区"
             }
       }
 };
@@ -200,21 +198,21 @@ await CurrentUnitOfWork.SaveChangesAsync();
 
 var hebei = new Region
 {
-      Name = "hebei",
+      Name = "河北",
       Children = new List<Region>
       {
             new Region
             {
-                  Name = "shijiazhuang",
+                  Name = "石家庄",
                   Children = new List<Region>
                   {
                         new Region
                         {
-                              Name = "changanqu"
+                              Name = "长安区"
                         },
                         new Region
                         {
-                              Name = "qiaodongqu"
+                              Name = "桥东区"
                         }
                   }
             }
@@ -224,69 +222,78 @@ await _generalRegionTreeManager.BulkCreateAsync(hebei);
 await CurrentUnitOfWork.SaveChangesAsync();
 ```
 
-## Some operations of the tree entity
+## 树形实体的一些操作
 
 ```csharp
-// Query all areas below Beijing does not include Beijing)
-var beijing = await _regionRepository.FirstOrDefaultAsync(x => x.Name == "beijing");
+// 查询北京下面的所有地区(不包括北京)
+var beijing = await _regionRepository.FirstOrDefaultAsync(x => x.Name == "北京");
 var beijingChildren = _regionRepository.GetAll().Where(x => x.Id != beijing.Id && x.Code.StartsWith(beijing.Code));
 
-// Query the area below Beijing (all districts)
-var beijing = await _regionRepository.FirstOrDefaultAsync(x => x.Name == "beijing");
+// 查询北京下面的地区(所有的区)
+var beijing = await _regionRepository.FirstOrDefaultAsync(x => x.Name == "北京");
 var beijingChildren = _regionRepository.GetAll().Where(x => x.Level == beijing.Level - 1 && x.Code.StartsWith(beijing.Code));
 
-// Query Changan and all the parent above
-var changanqu = await _regionRepository.FirstOrDefaultAsync(x => x.Name == "changanqu");
+// 查询长安区和上面所有的父地区
+var changanqu = await _regionRepository.FirstOrDefaultAsync(x => x.Name == "长安区");
 var parents = await _regionRepository.GetAllListAsync(x => changanqu.Code.StartsWith(x.Code));
 
-// Query Changan top parent.
-var changanqu = await _regionRepository.FirstOrDefaultAsync(x => x.Name == "changanqu");
+// 查询长安区的最顶级父地区
+var changanqu = await _regionRepository.FirstOrDefaultAsync(x => x.Name == "长安区");
 var hebei =  await _regionRepository.FirstOrDefaultAsync(x => x.Level == 1 && changanqu.Code.Contains(x.Code));
 ```
 
-## Other
+## 其它操作
 
 ```c#
 public interface IGeneralTreeManager<TTree, TPrimaryKey>
       where TPrimaryKey : struct
       where TTree : class, IGeneralTree<TTree, TPrimaryKey>
 {
+      // 创建
       Task CreateAsync(TTree tree);
 
+      // 批量创建
       Task BulkCreateAsync(TTree tree, Action<TTree> childrenAction = null);
 
+      // 给parnet增加子节点
       Task CreateChildrenAsync(TTree parent, ICollection<TTree> children, Action<TTree> childrenAction = null);
 
+      // 填充Code,Level,FullName...等属性
       Task FillUpAsync(TTree tree, Action<TTree> childrenAction = null);
 
+      // 更新属性(如Name, 当前和所有的子节点FullName都会统一更新)
       Task UpdateAsync(TTree tree, Action<TTree> childrenAction = null);
 
+      // 移动节点的父节点(相关的子节点都会更新Code,Level,FullName...等属性)
       Task MoveAsync(TPrimaryKey id, TPrimaryKey? parentId, Action<TTree> childrenAction = null);
 
+      // 删除节点
       Task DeleteAsync(TPrimaryKey id);
 }
 ```
 
-## Custom
+## 自定义配置
 
 ``` c#
 public override void PreInitialize()
 {
-      // Custom error message
+      // 自定义错误信息
       Configuration.Modules.GeneralTree<Region, long>().ExceptionMessageFactory = tree => $"{tree.Name} already exists!.";
 
-      // Custom node with the same name additional judgment logic
+      // 自定义同级节点同名额外检查逻辑
       Configuration.Modules.GeneralTree<Region, long>().CheckSameNameExpression = (regionThis, regionCheck) => regionThis.SomeForeignKey == regionCheck.SomeForeignKey
 
-      // Custom FullName separator
+      // 自定义FullName分隔符
       Configuration.Modules.GeneralTree<Region, long>().Hyphen = "=>";
 
 }
 ```
 
-The above code is for the entity's primary key as the value type. If it is a reference type, please use `IGeneralTreeWithReferenceType` and `IGeneralTreeManagerWithReferenceType`
+以上代码都是针对实体的主键为值类型.如果是引用类型请使用`IGeneralTreeWithReferenceType`和`IGeneralTreeManagerWithReferenceType`
 
-Configure `GeneralTreeCodeGenerate`Code length (default is 5 digits)
+## 其它
+
+配置`GeneralTreeCodeGenerate`Code长度(默认是5位)
 
 ``` c#
 [Fact]
@@ -304,7 +311,7 @@ public void Test_CreateCode_With_Length()
 }
 ```
 
-`GeneralTreeExtensions` `ToTree` converts the Tree collection to TreeDto (has a hierarchical relationship, sortable)
+`GeneralTreeExtensions` `ToTree`转换Tree集合到TreeDto(拥有层级关系,可排序)
 
 ``` c#
 [Fact]
@@ -315,55 +322,55 @@ public void ToTreeOrderBy_Test()
             new Regin
             {
                   Id = 1,
-                  Name = "beijing"
+                  Name = "b北京"
             },
             new Regin
             {
                   Id = 2,
-                  Name = "bdongcheng",
+                  Name = "b东城区",
                   ParentId = 1
             },
             new Regin
             {
                   Id = 3,
-                  Name = "axicheng",
+                  Name = "a西城区",
                   ParentId = 1
             },
             new Regin
             {
                   Id = 4,
-                  Name = "aHebei"
+                  Name = "a河北"
             },
             new Regin
             {
                   Id = 5,
-                  Name = "bShijianzhuang",
+                  Name = "b石家庄",
                   ParentId = 4
             },
             new Regin
             {
                   Id = 6,
-                  Name = "aChengde",
+                  Name = "a承德",
                   ParentId = 4
             },
             new Regin
             {
                   Id = 7,
-                  Name = "bShuangqiao",
+                  Name = "b双桥区",
                   ParentId = 6
             },
             new Regin
             {
                   Id = 8,
-                  Name = "aShuangluan",
+                  Name = "a双滦区",
                   ParentId = 6
             }
       };
 
       var tree = regions.ToTreeOrderBy<Regin, long, string>(x => x.Name).ToList();
 
-      tree.First().Name.ShouldBe("aHebei");
-      tree.First().Children.First().Name.ShouldBe("aChengde");
-      tree.First().Children.First().Children.First().Name.ShouldBe("aShuangluan");
+      tree.First().Name.ShouldBe("a河北");
+      tree.First().Children.First().Name.ShouldBe("a承德");
+      tree.First().Children.First().Children.First().Name.ShouldBe("a双滦区");
 }
 ```

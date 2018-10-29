@@ -21,6 +21,15 @@ Install-Package Abp.GeneralTree
 dotnet add package Abp.GeneralTree
 ```
 
+First you need to add the dependency to your module:
+``` c#
+[DependsOn(typeof(GeneralTreeModule))]
+public class YourProjectModule : AbpModule
+{
+    //...
+}
+```
+
 GeneralTree provides a generic `IGeneralTree` interface, which inherits this interface, passing in generic parameter entities and primary keys (primary keys can be value types and reference types)
 
 Value type

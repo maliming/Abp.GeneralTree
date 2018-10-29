@@ -19,6 +19,15 @@ Install-Package Abp.GeneralTree
 dotnet add package Abp.GeneralTree
 ```
 
+在模块中加入`GeneralTreeModule`依赖
+``` c#
+[DependsOn(typeof(GeneralTreeModule))]
+public class YourProjectModule : AbpModule
+{
+    //...
+}
+```
+
 GeneralTree提供一个泛型`IGeneralTree`接口,实体继承此接口,传入泛型参数实体和主键(主键可以是值类型和引用类型)
 
 值类型

@@ -4,14 +4,14 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Version>2.4.0</Version>
+    <Version>2.4.1</Version>
     <PackageProjectUrl>https://github.com/maliming/Abp.GeneralTree</PackageProjectUrl>
     <Authors>maliming</Authors>
     <Company>maliming</Company>
-    <PackageReleaseNotes>fix bug</PackageReleaseNotes>
+    <PackageReleaseNotes>Update Abp to 4.0.2</PackageReleaseNotes>
     <Description>Abp.GeneralTree Based on the idea of Organizations in abp module-zero, we did a general management of the entity tree structure.</Description>
-    <AssemblyVersion>2.4.0.0</AssemblyVersion>
-    <FileVersion>2.4.0.0</FileVersion>
+    <AssemblyVersion>2.4.1.0</AssemblyVersion>
+    <FileVersion>2.4.1.0</FileVersion>
     <PackageTags>abp,generaltree</PackageTags>
     <RepositoryUrl>https://github.com/maliming/Abp.GeneralTree</RepositoryUrl>
     <RepositoryType />
@@ -21,7 +21,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Abp" Version="3.8.2" />
+    <PackageReference Include="Abp" Version="4.0.2" />
   </ItemGroup>
 
 </Project>

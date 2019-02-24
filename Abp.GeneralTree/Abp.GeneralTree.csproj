@@ -4,24 +4,24 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Version>2.4.1</Version>
+    <Version>2.4.2</Version>
     <PackageProjectUrl>https://github.com/maliming/Abp.GeneralTree</PackageProjectUrl>
     <Authors>maliming</Authors>
     <Company>maliming</Company>
-    <PackageReleaseNotes>Update Abp to 4.0.2</PackageReleaseNotes>
+    <PackageReleaseNotes>Update Abp to 4.2.0</PackageReleaseNotes>
     <Description>Abp.GeneralTree Based on the idea of Organizations in abp module-zero, we did a general management of the entity tree structure.</Description>
-    <AssemblyVersion>2.4.1.0</AssemblyVersion>
-    <FileVersion>2.4.1.0</FileVersion>
+    <AssemblyVersion>2.4.2.0</AssemblyVersion>
+    <FileVersion>2.4.2.0</FileVersion>
     <PackageTags>abp,generaltree</PackageTags>
     <RepositoryUrl>https://github.com/maliming/Abp.GeneralTree</RepositoryUrl>
     <RepositoryType />
     <Copyright>maliming</Copyright>
     <PackageIconUrl>https://raw.githubusercontent.com/maliming/Abp.GeneralTree/master/GeneralTree.png</PackageIconUrl>
-    <PackageLicenseUrl>https://github.com/maliming/Abp.GeneralTree/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageLicense>https://github.com/maliming/Abp.GeneralTree/blob/master/LICENSE</PackageLicense>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Abp" Version="4.0.2" />
+    <PackageReference Include="Abp" Version="4.2.0" />
   </ItemGroup>
 
 </Project>

@@ -294,48 +294,36 @@ namespace Abp.GeneralTree
         private static Expression<Func<TTree, bool>> EqualId(TPrimaryKey id)
         {
             var lambdaParam = Expression.Parameter(typeof(TTree));
-
-            var lambdaBody = Expression.Equal(
-                Expression.PropertyOrField(lambdaParam, "Id"),
-                Expression.Constant(id, typeof(TPrimaryKey))
-            );
-
+            var leftExpression = Expression.PropertyOrField(lambdaParam, "Id");
+            var rightExpression = Expression.Constant(id, typeof(TPrimaryKey));
+            var lambdaBody = Expression.Equal(leftExpression, rightExpression);
             return Expression.Lambda<Func<TTree, bool>>(lambdaBody, lambdaParam);
         }
 
         private static Expression<Func<TTree, bool>> NotEqualId(TPrimaryKey id)
         {
             var lambdaParam = Expression.Parameter(typeof(TTree));
-
-            var lambdaBody = Expression.NotEqual(
-                Expression.PropertyOrField(lambdaParam, "Id"),
-                Expression.Constant(id, typeof(TPrimaryKey))
-            );
-
+            var leftExpression = Expression.PropertyOrField(lambdaParam, "Id");
+            var rightExpression = Expression.Constant(id, typeof(TPrimaryKey));
+            var lambdaBody = Expression.NotEqual(leftExpression, rightExpression);
             return Expression.Lambda<Func<TTree, bool>>(lambdaBody, lambdaParam);
         }
 
         private static Expression<Func<TTree, bool>> EqualParentId(TPrimaryKey? parentId)
         {
             var lambdaParam = Expression.Parameter(typeof(TTree));
-
-            var lambdaBody = Expression.Equal(
-                Expression.PropertyOrField(lambdaParam, "ParentId"),
-                Expression.Constant(parentId, typeof(TPrimaryKey?))
-            );
-
+            var leftExpression = Expression.PropertyOrField(lambdaParam, "ParentId");
+            var rightExpression = Expression.Constant(parentId, typeof(TPrimaryKey?));
+            var lambdaBody = Expression.Equal(leftExpression, rightExpression);
             return Expression.Lambda<Func<TTree, bool>>(lambdaBody, lambdaParam);
         }
 
         private static Expression<Func<TTree, bool>> NotEqualParentId(TPrimaryKey? parentId)
         {
             var lambdaParam = Expression.Parameter(typeof(TTree));
-
-            var lambdaBody = Expression.NotEqual(
-                Expression.PropertyOrField(lambdaParam, "ParentId"),
-                Expression.Constant(parentId, typeof(TPrimaryKey?))
-            );
-
+            var leftExpression = Expression.PropertyOrField(lambdaParam, "ParentId");
+            var rightExpression = Expression.Constant(parentId, typeof(TPrimaryKey?));
+            var lambdaBody = Expression.NotEqual(leftExpression, rightExpression);
             return Expression.Lambda<Func<TTree, bool>>(lambdaBody, lambdaParam);
         }
 

@@ -3,7 +3,7 @@
 
 # Abp GeneralTree
 
-[![Build status](https://ci.appveyor.com/api/projects/status/ftg4ttr825gnmabl?svg=true)](https://ci.appveyor.com/project/maliming/Abp-Generaltree)
+[![Build status](https://ci.appveyor.com/api/projects/status/5fvpyg756aushkv7?svg=true)](https://ci.appveyor.com/project/maliming/Abp-Generaltree)
 [![NuGet](https://img.shields.io/nuget/vpre/abp.GeneralTree.svg)](https://www.nuget.org/packages/Abp.GeneralTree)
 
 - 基于Abp模块系统,完美集成Abp框架.

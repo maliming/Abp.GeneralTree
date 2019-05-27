@@ -242,11 +242,11 @@ var beijingChildren = _regionRepository.GetAll().Where(x => x.Id != beijing.Id &
 var beijing = await _regionRepository.FirstOrDefaultAsync(x => x.Name == "北京");
 var beijingChildren = _regionRepository.GetAll().Where(x => x.Level == beijing.Level - 1 && x.Code.StartsWith(beijing.Code));
 
-// 查询长安区和上面所有的父地区
+// 查询长安区的最顶级父地区
 var changanqu = await _regionRepository.FirstOrDefaultAsync(x => x.Name == "长安区");
 var parents = await _regionRepository.GetAllListAsync(x => changanqu.Code.StartsWith(x.Code));
 
-// 查询长安区的最顶级父地区
+// 查询长安区和上面所有的父地区
 var changanqu = await _regionRepository.FirstOrDefaultAsync(x => x.Name == "长安区");
 var hebei =  await _regionRepository.FirstOrDefaultAsync(x => x.Level == 1 && changanqu.Code.Contains(x.Code));
 ```

@@ -18,7 +18,7 @@ namespace Abp.GeneralTree
 
         Task UpdateAsync(TTree tree, Action<TTree> childrenAction = null);
 
-        Task MoveAsync(TPrimaryKey id, TPrimaryKey parentId, Action<TTree> childrenAction = null);
+        Task MoveAsync(TPrimaryKey id, TPrimaryKey parentId, Action<TTree> childrenAction = null, int? index = null);
 
         Task DeleteAsync(TPrimaryKey id);
     }

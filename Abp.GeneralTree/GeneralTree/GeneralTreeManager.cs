@@ -20,6 +20,8 @@ namespace Abp.GeneralTree
         private readonly IGeneralTreeConfiguration<TTree, TPrimaryKey> _generalTreeConfiguration;
         private readonly IRepository<TTree, TPrimaryKey> _generalTreeRepository;
 
+        public IUnitOfWorkManager UnitOfWorkManager { get; set; }
+
         public GeneralTreeManager(IGeneralTreeCodeGenerate generalTreeCodeGenerate,
             IRepository<TTree, TPrimaryKey> generalTreeRepository,
             IGeneralTreeConfiguration<TTree, TPrimaryKey> generalTreeConfiguration)
@@ -135,6 +137,8 @@ namespace Abp.GeneralTree
                     childrenAction?.Invoke(child);
                 }
             }
+
+            await UnitOfWorkManager.Current.SaveChangesAsync();//Must commit...
 
             //Move index
             if (index.HasValue)

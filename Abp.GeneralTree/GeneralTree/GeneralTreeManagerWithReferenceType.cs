@@ -263,13 +263,25 @@ namespace Abp.GeneralTree
         /// <returns></returns>
         private void CheckSameName(TTree tree)
         {
-            if (_generalTreeRepository.GetAll().Where(x => x.ParentId == tree.ParentId && x.Id != tree.Id).WhereIf(
-                    _generalTreeConfiguration.CheckSameNameExpression != null,
-                    x => _generalTreeConfiguration.CheckSameNameExpression(x, tree))
-                .Any(x => x.Name == tree.Name))
+            if (_generalTreeConfiguration.CheckSameNameExpression == null)
             {
-                throw new UserFriendlyException(_generalTreeConfiguration.ExceptionMessageFactory.Invoke(tree));
+                if (!_generalTreeRepository.GetAll().Where(x => x.ParentId == tree.ParentId && x.Id != tree.Id)
+                    .Any(x => x.Name == tree.Name))
+                {
+                    return;
+                }
             }
+            else
+            {
+                var trees = _generalTreeRepository.GetAll().Where(x => x.ParentId == tree.ParentId && x.Id != tree.Id)
+                    .Where(x => x.Name == tree.Name).ToList();
+                if (!trees.Any() || !trees.Any(x => _generalTreeConfiguration.CheckSameNameExpression(x, tree)))
+                {
+                    return;
+                }
+            }
+
+            throw new UserFriendlyException(_generalTreeConfiguration.ExceptionMessageFactory.Invoke(tree));
         }
 
         /// <summary>

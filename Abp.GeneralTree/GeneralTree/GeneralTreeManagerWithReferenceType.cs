@@ -21,6 +21,8 @@ namespace Abp.GeneralTree
         private readonly IGeneralTreeConfigurationWithReferenceType<TTree, TPrimaryKey> _generalTreeConfiguration;
         private readonly IRepository<TTree, TPrimaryKey> _generalTreeRepository;
 
+        public IUnitOfWorkManager UnitOfWorkManager { get; set; }
+
         public GeneralTreeManagerWithReferenceType(IGeneralTreeCodeGenerate generalTreeCodeGenerate,
             IRepository<TTree, TPrimaryKey> generalTreeRepository,
             IGeneralTreeConfigurationWithReferenceType<TTree, TPrimaryKey> generalTreeConfiguration)
@@ -101,39 +103,94 @@ namespace Abp.GeneralTree
         }
 
         [UnitOfWork]
-        public virtual async Task MoveAsync(TPrimaryKey id, TPrimaryKey parentId, Action<TTree> childrenAction = null)
+        public virtual async Task MoveAsync(TPrimaryKey id, TPrimaryKey parentId, Action<TTree> childrenAction = null, int? index = null)
         {
             var tree = await _generalTreeRepository.GetAsync(id);
-            if (tree.ParentId.Equals(parentId))
+
+            if (!tree.ParentId.Equals(parentId))//Move level
             {
-                return;
+                //Should find children before Code change
+                var children = await GetChildrenAsync(id, true);
+
+                //Store old code and full name of Tree
+                var oldCode = tree.Code;
+                var oldFullName = tree.FullName;
+
+                //Move Tree             
+
+
+                tree.Code = await GetNextChildCodeAsync(parentId);
+                tree.Level = tree.Code.Split('.').Length;
+                tree.ParentId = parentId;
+                tree.FullName = await GetChildFullNameAsync(parentId, tree.Name);
+
+                CheckSameName(tree);
+
+                //Update Children Codes and FullName
+                foreach (var child in children)
+                {
+                    child.Code = _generalTreeCodeGenerate.MergeCode(tree.Code,
+                        _generalTreeCodeGenerate.RemoveParentCode(child.Code, oldCode));
+                    child.FullName = _generalTreeCodeGenerate.MergeFullName(tree.FullName,
+                        _generalTreeCodeGenerate.RemoveParentCode(child.FullName, oldFullName));//RemoveParentCode just sub string
+                    child.Level = child.Code.Split('.').Length;
+
+                    childrenAction?.Invoke(child);
+                }
             }
 
-            //Should find children before Code change
-            var children = await GetChildrenAsync(id, true);
+            await UnitOfWorkManager.Current.SaveChangesAsync();//Must commit...
 
-            //Store old code and full name of Tree
-            var oldCode = tree.Code;
-            var oldFullName = tree.FullName;
-
-            //Move Tree
-            tree.Code = await GetNextChildCodeAsync(parentId);
-            tree.Level = tree.Code.Split('.').Length;
-            tree.ParentId = parentId;
-            tree.FullName = await GetChildFullNameAsync(parentId, tree.Name);
-
-            CheckSameName(tree);
-
-            //Update Children Codes and FullName
-            foreach (var child in children)
+            //Move index
+            if (index.HasValue)
             {
-                child.Code = _generalTreeCodeGenerate.MergeCode(tree.Code,
-                    _generalTreeCodeGenerate.RemoveParentCode(child.Code, oldCode));
-                child.FullName = _generalTreeCodeGenerate.MergeFullName(tree.FullName,
-                    _generalTreeCodeGenerate.RemoveParentCode(child.FullName, oldFullName));
-                child.Level = child.Code.Split('.').Length;
+                if (index.Value < 0)
+                {
+                    throw new ArgumentOutOfRangeException($"{nameof(index)} cannot be less than 0.");
+                }
 
-                childrenAction?.Invoke(child);
+                //Store the code update info
+                Dictionary<string, TTree> updateDic = new Dictionary<string, TTree>();
+
+                //Update all the same level
+                var sameLevelNodes = await GetChildrenAsync(parentId, false);// this incule 'tree'
+                sameLevelNodes = sameLevelNodes.OrderBy(m => m.Code).ToList();
+
+                if (index.Value > sameLevelNodes.Count - 1)
+                {
+                    //Move to last
+                    index = sameLevelNodes.Count - 1;
+                }
+
+                sameLevelNodes.RemoveAll(m => m.Id.Equals(tree.Id));
+                sameLevelNodes.Insert(index.Value, tree);
+
+                var parentCode = _generalTreeCodeGenerate.GetParentCode(tree.Code);
+                var startCode = _generalTreeCodeGenerate.MergeCode(parentCode,
+                    _generalTreeCodeGenerate.CreateCode(1));
+                foreach (var sameLevel in sameLevelNodes)
+                {
+                    if (sameLevel.Code != startCode)//Ignore index has not changed
+                    {
+                        updateDic[startCode] = sameLevel;
+                        var levelChildren = await GetChildrenAsync(sameLevel.Id, true);
+                        foreach (var levelChild in levelChildren)
+                        {
+                            var childCode = _generalTreeCodeGenerate.MergeCode(startCode,
+                                _generalTreeCodeGenerate.RemoveParentCode(levelChild.Code, sameLevel.Code));
+                            updateDic[childCode] = levelChild;
+                        }
+                    }
+
+                    startCode = _generalTreeCodeGenerate.GetNextCode(startCode);
+                }
+
+                //Do update
+                foreach (var up in updateDic)
+                {
+                    up.Value.Code = up.Key;
+                }
+
             }
         }
 

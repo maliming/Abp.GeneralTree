@@ -611,6 +611,79 @@ namespace TreeTests
         }
 
         [Fact]
+        public async Task Move_Index_Test()
+        {
+            //Act
+            var beijing = await CreateRegion("beijing");
+            var dongcheng = await CreateRegion("dongcheng", beijing.Id);
+            dongcheng.Code.ShouldBe("00001.00001");
+            var xicheng = await CreateRegion("xicheng", beijing.Id);
+            xicheng.Code.ShouldBe("00001.00002");
+
+            var hebei = await CreateRegion("hebei");
+            await CreateRegion("shijiazhuang", hebei.Id);
+            var chengde = await CreateRegion("chengde", hebei.Id);
+            chengde.Code.ShouldBe("00002.00002");
+
+            var shaungqiao = await CreateRegion("va", chengde.Id);
+            shaungqiao.Code.ShouldBe("00002.00002.00001");
+            var shaungluan = await CreateRegion("shaungluan", chengde.Id);
+            shaungluan.Code.ShouldBe("00002.00002.00002");
+
+            var bazhong = await CreateRegion("bazhong", shaungluan.Id);
+            bazhong.Code.ShouldBe("00002.00002.00002.00001");
+
+            var beijingLastChild = GetRegion("xicheng");
+            beijingLastChild.ShouldNotBeNull();
+            await _generalRegion2TreeManager.MoveAsync(chengde.Id, beijing.Id, index: 0);
+
+            //Assert
+            var cd = GetRegion(chengde.Name);
+            cd.ShouldNotBeNull();
+            cd.FullName.ShouldBe(beijing.FullName + "-" + chengde.Name);
+            cd.ParentId.ShouldBe(beijing.Id);
+            cd.Level.ShouldBe(beijing.Level + 1);
+            cd.Code.ShouldBe("00001.00001");
+
+            shaungqiao = GetRegion(shaungqiao.Name);
+            shaungqiao.Code.ShouldBe("00001.00001.00001");
+
+            var dc = GetRegion(dongcheng.Name);
+            dc.Code.ShouldBe("00001.00002");
+
+            var xc = GetRegion(xicheng.Name);
+            xc.Code.ShouldBe("00001.00003");
+
+            //Move and check children
+            await _generalRegion2TreeManager.MoveAsync(shaungqiao.Id, beijing.Id, index: 0);
+            cd = GetRegion(chengde.Name);
+            cd.Code.ShouldBe("00001.00002");
+            shaungqiao = GetRegion(shaungqiao.Name);
+            shaungqiao.Code.ShouldBe("00001.00001");
+
+            //Only change index
+            await _generalRegion2TreeManager.MoveAsync(chengde.Id, beijing.Id, index: 2);// Move cd from index 0 to index 2
+            cd = GetRegion(chengde.Name);
+            cd.Code.ShouldBe("00001.00003");
+
+            shaungqiao = GetRegion(shaungqiao.Name);
+            shaungqiao.Code.ShouldBe("00001.00001");
+
+            dc = GetRegion(dongcheng.Name);
+            dc.Code.ShouldBe("00001.00002");
+
+            xc = GetRegion(xicheng.Name);
+            xc.Code.ShouldBe("00001.00004");
+
+            shaungluan = GetRegion(shaungluan.Name);
+            shaungluan.Code.ShouldBe("00001.00003.00002");
+
+            await _generalRegion2TreeManager.MoveAsync(chengde.Id, beijing.Id, index: 20);// Move cd to last
+            cd = GetRegion(chengde.Name);
+            cd.Code.ShouldBe("00001.00004");
+        }
+
+        [Fact]
         public async Task Update_ChildrenAction_Test()
         {
             //Arrange
